@@ -13,7 +13,7 @@ description: Use when the user asks to find, search, or look up a note in their 
 - `ta tag NAME` — shortcut for `search --tag NAME`.
 - `ta show REF [REF ...]` — print frontmatter + raw body per ref.
 
-If no archive is configured, the CLI tells you how: pass `--archive PATH` on the subcommand, set `TA_ARCHIVE`, or write `archive: /path` to `~/.config/ta/config.yaml`.
+If no archive is configured, the CLI tells you how: pass `--archive PATH` on the subcommand, set `TA_DIR`, or write `archive: /path` to `~/.config/ta/config.yaml`.
 
 ## Predicates
 

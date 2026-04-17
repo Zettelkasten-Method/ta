@@ -32,4 +32,4 @@ The only Claude-specific element in the skill bodies is `AskUserQuestion` (used 
 
 ## Prerequisites
 
-Users need `ta` on `PATH` and an archive configured via `--archive`, `TA_ARCHIVE`, or `~/.config/ta/config.yaml`. See the main project README.
+Users need `ta` on `PATH` and an archive configured via `--archive`, `TA_DIR`, or `~/.config/ta/config.yaml`. See the main project README.

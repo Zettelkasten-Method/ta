@@ -13,7 +13,7 @@ public struct ArchiveResolver {
                 return """
                     No archive configured. Choose one (highest precedence first):
                       1. --archive /path/to/archive (flag on every invocation)
-                      2. export TA_ARCHIVE=/path/to/archive
+                      2. export TA_DIR=/path/to/archive
                       3. echo 'archive: /path/to/archive' > \(path)
                     Example:
                       ta search --archive ~/Zettelkasten --tag learning
@@ -45,7 +45,7 @@ public struct ArchiveResolver {
         if let value = flagValue, !value.isEmpty {
             return try validated(path: value)
         }
-        if let value = environment["TA_ARCHIVE"], !value.isEmpty {
+        if let value = environment["TA_DIR"], !value.isEmpty {
             return try validated(path: value)
         }
         let configPath = Self.defaultConfigPath()

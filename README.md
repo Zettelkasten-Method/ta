@@ -17,7 +17,7 @@ The binary lands at `./.build/release/ta`.
 Point `ta` at your archive in one of these ways (listed in precedence order):
 
 1. Pass `--archive /path/to/archive` on a subcommand (`search`, `tag`, or `show`). The flag is not accepted at the root.
-2. `export TA_ARCHIVE=/path/to/archive`.
+2. `export TA_DIR=/path/to/archive`.
 3. Write `archive: /path/to/archive` to `~/.config/ta/config.yaml`.
 
 ## Usage

@@ -11,7 +11,7 @@ struct ArchiveResolverTests {
         defer { try? FileManager.default.removeItem(at: tmp) }
         let resolver = ArchiveResolver(
             flagValue: tmp.path,
-            environment: ["TA_ARCHIVE": "/nonexistent-env"],
+            environment: ["TA_DIR": "/nonexistent-env"],
             configFileReader: { _ in "archive: /nonexistent-config\n" }
         )
         let resolved = try resolver.resolve()
@@ -24,7 +24,7 @@ struct ArchiveResolverTests {
         defer { try? FileManager.default.removeItem(at: tmp) }
         let resolver = ArchiveResolver(
             flagValue: nil,
-            environment: ["TA_ARCHIVE": tmp.path],
+            environment: ["TA_DIR": tmp.path],
             configFileReader: { _ in nil }
         )
         let resolved = try resolver.resolve()

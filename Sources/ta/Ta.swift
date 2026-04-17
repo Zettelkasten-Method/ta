@@ -24,7 +24,7 @@ struct Ta: ParsableCommand {
 
         Archive path resolution (highest precedence first):
           1. --archive PATH  — flag on a subcommand (search, tag, or show)
-          2. TA_ARCHIVE  — environment variable
+          2. TA_DIR  — environment variable
           3. archive: PATH   — key in ~/.config/ta/config.yaml
         """,
         version: "0.0.1",
