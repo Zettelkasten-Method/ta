@@ -22,8 +22,10 @@ struct ZkLlm: ParsableCommand {
           Print one or more notes (frontmatter + raw markdown):
             zk-llm show "202503091430 Mental Models.md"
 
-        Configure the archive once via --archive, ZK_LLM_ARCHIVE, or
-        ~/.config/zk-llm/config.yaml (key: archive).
+        Archive path resolution (highest precedence first):
+          1. --archive PATH  — flag on a subcommand (search, tag, or show)
+          2. ZK_LLM_ARCHIVE  — environment variable
+          3. archive: PATH   — key in ~/.config/zk-llm/config.yaml
         """,
         version: "0.0.1",
         subcommands: [SearchCommand.self, TagCommand.self, ShowCommand.self],
