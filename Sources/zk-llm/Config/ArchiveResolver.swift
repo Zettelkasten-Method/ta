@@ -58,12 +58,11 @@ public struct ArchiveResolver {
 
     private func validated(path raw: String) throws -> URL {
         let expanded = (raw as NSString).expandingTildeInPath
-        let url = URL(fileURLWithPath: expanded, isDirectory: true)
         var isDir: ObjCBool = false
         guard FileManager.default.fileExists(atPath: expanded, isDirectory: &isDir), isDir.boolValue else {
             throw Error.notADirectory(expanded)
         }
-        return url
+        return URL(fileURLWithPath: expanded, isDirectory: true).resolvingSymlinksInPath()
     }
 
     public static func defaultConfigPath() -> URL {
