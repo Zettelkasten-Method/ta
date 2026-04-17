@@ -6,7 +6,7 @@ struct ZkLlm: ParsableCommand {
         commandName: "zk-llm",
         abstract: "Zettelkasten retrieval CLI for coding agents.",
         version: "0.0.1",
-        subcommands: [],
+        subcommands: [SearchCommand.self],
         defaultSubcommand: nil
     )
 }
