@@ -2,7 +2,7 @@
 
 A command-line retrieval tool over a Zettelkasten archive, shaped for consumption by coding agents. Prototype.
 
-See `docs/README.md` for the design documentation tree. The historical design spec, plan, and ADRs refer to the tool as `zk-llm` — its prior name.
+See `docs/README.md` for the design documentation tree.
 
 ## Build
 
@@ -46,7 +46,7 @@ Emits YAML frontmatter + raw markdown body per ref.
 
 ## Agent skills
 
-`ta` is built for coding agents that drive the CLI on the user's behalf. Copy-pasteable skills live under `docs/skills/`:
+`ta` is built for coding agents that drive the CLI on the user's behalf. Copy-pasteable skills live under [`docs/skills/`](docs/skills/):
 
 | Skill | Triggers on | Strategy |
 |---|---|---|
@@ -62,7 +62,7 @@ cp -r docs/skills/ta-associative-recall ~/.claude/skills/
 cp -r docs/skills/ta-deep-research ~/.claude/skills/
 ```
 
-Other agents: see `docs/skills/README.md` for the frontmatter convention.
+Other agents: see [`docs/skills/README.md`](docs/skills/README.md) for the frontmatter convention.
 
 ## Runtime dependencies
 

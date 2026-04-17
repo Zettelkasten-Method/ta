@@ -14,7 +14,7 @@ related:
 
 ## Context
 
-The zk-llm CLI must detect wiki-links of the forms `[[target]]` and `[[target|display text]]` so it can expand the outgoing-link graph around search hits. `swift-markdown` (our AST parser) has no native wiki-link support — wiki-links appear to it as `[`, `[`, `text`, `]`, `]` inline nodes (or occasionally as malformed link syntax, since `[[...]]` is not CommonMark).
+The ta CLI must detect wiki-links of the forms `[[target]]` and `[[target|display text]]` so it can expand the outgoing-link graph around search hits. `swift-markdown` (our AST parser) has no native wiki-link support — wiki-links appear to it as `[`, `[`, `text`, `]`, `]` inline nodes (or occasionally as malformed link syntax, since `[[...]]` is not CommonMark).
 
 The Archive v1 has been using a regex-based approach for this same syntax since the project's inception. The regex has been battle-tested across user archives that include Unicode characters, anchor text with pipe separators, and miscellaneous false-positive candidates (math expressions with double brackets, array syntax, etc.).
 
@@ -70,7 +70,7 @@ Write a mini-parser that tracks bracket depth, escape sequences, and delimiters 
 
 Let the user define their own syntax (e.g., `{{link}}` or `@link`).
 
-**Rejected because:** the zk-llm CLI is a prototype for a specific Zettelkasten flavor (The Archive's). Users on other flavors can fork. Premature generality.
+**Rejected because:** the ta CLI is a prototype for a specific Zettelkasten flavor (The Archive's). Users on other flavors can fork. Premature generality.
 
 ### D. Greedy `.+?` target
 

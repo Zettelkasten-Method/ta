@@ -14,7 +14,7 @@ related:
 
 ## Context
 
-`zk-llm search` emits a graph-expanded result set: direct hits plus a bounded neighborhood reached by following outgoing wiki-link edges up to `--depth` hops (default 3, cap 10). The output is consumed by coding agents.
+`ta search` emits a graph-expanded result set: direct hits plus a bounded neighborhood reached by following outgoing wiki-link edges up to `--depth` hops (default 3, cap 10). The output is consumed by coding agents.
 
 The question is the *shape* of the output:
 

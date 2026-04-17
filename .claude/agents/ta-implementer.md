@@ -1,18 +1,18 @@
 ---
-name: zk-llm-implementer
-description: Implements a single task from docs/superpowers/plans/2026-04-17-zk-llm-cli.md. Follows TDD exactly as the plan prescribes — uses the code the plan provides verbatim. Ask the controller questions before starting if anything is unclear; escalate BLOCKED/NEEDS_CONTEXT if the plan's code/tests don't work as written.
+name: ta-implementer
+description: Implements a single task from docs/superpowers/plans/2026-04-17-ta-cli.md. Follows TDD exactly as the plan prescribes — uses the code the plan provides verbatim. Ask the controller questions before starting if anything is unclear; escalate BLOCKED/NEEDS_CONTEXT if the plan's code/tests don't work as written.
 model: sonnet
 ---
 
-You are an implementer agent for the `zk-llm` Swift CLI project.
+You are an implementer agent for the `ta` Swift CLI project.
 
 ## Project context
 
-- Repository root: `/Users/ctm/Coding/zk-llm`
+- Repository root: `/Users/ctm/Coding/ta`
 - Swift 6 SwiftPM executable. Build with `swift build -c debug`. Test with `swift test`.
 - Authoritative references:
-  - `docs/superpowers/specs/2026-04-17-zk-llm-cli-design.md` (full design)
-  - `docs/superpowers/plans/2026-04-17-zk-llm-cli.md` (task list, with complete code per step)
+  - `docs/superpowers/specs/2026-04-17-ta-cli-design.md` (full design)
+  - `docs/superpowers/plans/2026-04-17-ta-cli.md` (task list, with complete code per step)
   - `docs/adrs/ADR-001` through `ADR-005` (specific decisions)
 - Current working branch: `feat/cli-implementation` (do not switch branches, do not push).
 

@@ -14,7 +14,7 @@ related:
 
 ## Context
 
-The zk-llm CLI must detect `#hashtag` tokens in note bodies so it can emit the `tags:` leaf annotation on each YAML search result and verify `--tag foo` predicates structurally (not just via raw-text `rg` hits).
+The ta CLI must detect `#hashtag` tokens in note bodies so it can emit the `tags:` leaf annotation on each YAML search result and verify `--tag foo` predicates structurally (not just via raw-text `rg` hits).
 
 The Archive v1 has treated `#hashtag` as a clustering primitive since its inception. The recognition rule there distinguishes between:
 

@@ -14,12 +14,12 @@ related:
 
 ## Context
 
-`zk-llm show REF...` accepts one or more NoteRef positional arguments and emits the full body of each referenced note on stdout. The output is consumed by coding agents that will pass the content into an LLM for summarization, extraction, or further reasoning.
+`ta show REF...` accepts one or more NoteRef positional arguments and emits the full body of each referenced note on stdout. The output is consumed by coding agents that will pass the content into an LLM for summarization, extraction, or further reasoning.
 
 Key constraints:
 
 1. **Markdown bodies must pass through verbatim.** The agent's LLM is trained on raw markdown; re-encoding or escaping degrades retrieval quality. Code fences, inline code, tables, math blocks — all must render exactly as they appear on disk.
-2. **Multiple refs in one invocation.** The agent issues one `zk-llm show ref1 ref2 ref3` call rather than three separate calls (reducing subprocess latency and giving the agent a single response to process). The output must be self-delimiting so the agent can split it back into per-ref chunks.
+2. **Multiple refs in one invocation.** The agent issues one `ta show ref1 ref2 ref3` call rather than three separate calls (reducing subprocess latency and giving the agent a single response to process). The output must be self-delimiting so the agent can split it back into per-ref chunks.
 3. **Metadata per ref.** Alongside the body, the agent wants the ref, title, tags, and outgoing links — the same compact summary structure emitted by `search` (ADR-004). Having metadata and body colocated saves the agent a second query.
 4. **Missing refs are not a hard error.** A batch of three refs where one is missing should still produce output for the other two, with the missing one clearly flagged. Aborting the whole invocation because one ref is gone would force the agent into per-ref calls just to isolate failures.
 
@@ -133,7 +133,7 @@ Non-zero only if *zero* refs resolved. If at least one ref produced output (even
 
 ### E. One file per ref written to a temp directory
 
-`zk-llm show` writes to `$TMPDIR/zk-llm-NNN/ref1.md, ref2.md` and prints the directory.
+`ta show` writes to `$TMPDIR/ta-NNN/ref1.md, ref2.md` and prints the directory.
 
 **Rejected because:** introduces filesystem side effects; the agent must then read those files; cleanup responsibility is ambiguous; the stdout stream is no longer the product. The whole point of a Unix tool is stdout.
 
@@ -152,7 +152,7 @@ Non-zero only if *zero* refs resolved. If at least one ref produced output (even
   - Thematic breaks are conventionally written as `***` or `___` more often than `---` in practice.
   - Notes in The Archive idiom rarely open with a thematic break.
   - Agents parsing the output can apply a two-pass strategy: first scan for frontmatter-shaped blocks (starts with `---`, followed by valid YAML, ends with `---`, followed by content), falling back if a putative delimiter doesn't open a valid block.
-  - If the risk materializes in practice, a future refinement: escape `---` at body column 0 to a different marker, or use a unique `---zk-llm---` sentinel. Additive change, no call-site breakage.
+  - If the risk materializes in practice, a future refinement: escape `---` at body column 0 to a different marker, or use a unique `---ta---` sentinel. Additive change, no call-site breakage.
 - **Not streaming-friendly for partial results.** We materialize each note's frontmatter before emitting its body. For 10 KB bodies this is fine; for a hypothetical 10 MB note it would be noticeable. Not a concern for the 10K-note Zettelkasten (notes are typically small).
 
 ### Neutral

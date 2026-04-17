@@ -1,10 +1,10 @@
 ---
-title: "zk-llm CLI — Design"
+title: "ta CLI — Design"
 date: 2026-04-17
 status: draft
 ---
 
-# zk-llm CLI — Design
+# ta CLI — Design
 
 A command-line retrieval tool over a Zettelkasten archive, intended for consumption by coding agents. Prototype quality, one-day implementation target.
 
@@ -30,7 +30,7 @@ The core flow: agent asks a topic question, drives retrieval through the CLI, na
 - No Boolean query evaluator (`SearchExpressionParser` requires a full index — deferred).
 - No filename schemes beyond 12-digit timestamp prefix (ADR-010 enumerates others; deferred).
 - No reverse/backlink queries (`who links to X?`). Deferred.
-- No tag-membership edges in the graph. Tags are leaf annotations only; `zk-llm tag` is the explicit path.
+- No tag-membership edges in the graph. Tags are leaf annotations only; `ta tag` is the explicit path.
 - No writing or editing notes.
 - No fuzzy matching, no `OR`/`NOT` operators. Agents synthesize these via multiple calls and set operations.
 - No daemonized mode, no cross-platform distribution, no signing, no Homebrew formula. Hand-built binary executed locally.
@@ -38,7 +38,7 @@ The core flow: agent asks a topic question, drives retrieval through the CLI, na
 
 ## 2. Audience
 
-Primary consumer: a coding agent with skills that know how to invoke `zk-llm` and parse its output. Secondary consumer: the developer demoing the tool.
+Primary consumer: a coding agent with skills that know how to invoke `ta` and parse its output. Secondary consumer: the developer demoing the tool.
 
 Consequence: output is optimized for agent parsing and low token cost, not for human eyeballing. YAML over tables, flat lists over nested trees, bounded payloads.
 
@@ -48,10 +48,10 @@ Three subcommands. All write to stdout; errors go to stderr with a non-zero exit
 
 The predicate surface (flag-based, AND-combined, repeatable) is specified in ADR-003. Output formats are specified in ADR-004 (search/tag) and ADR-005 (show).
 
-### `zk-llm search`
+### `ta search`
 
 ```
-zk-llm search [--tag TAG]... [--phrase STR]... [--word WORD]...
+ta search [--tag TAG]... [--phrase STR]... [--word WORD]...
               [--depth N] [POSITIONAL_PHRASE]
 ```
 
@@ -65,18 +65,18 @@ Finds notes matching all predicates (AND), expands the outgoing wiki-link graph 
 
 All predicates are AND-combined. Zero predicates is an error (we require at least one).
 
-### `zk-llm tag`
+### `ta tag`
 
 ```
-zk-llm tag TAGNAME [--depth N]
+ta tag TAGNAME [--depth N]
 ```
 
-Convenience wrapper. Equivalent to `zk-llm search --tag TAGNAME [--depth N]`. `--depth` default is `3`, hard cap `10`, matching `search`.
+Convenience wrapper. Equivalent to `ta search --tag TAGNAME [--depth N]`. `--depth` default is `3`, hard cap `10`, matching `search`.
 
-### `zk-llm show`
+### `ta show`
 
 ```
-zk-llm show REF...
+ta show REF...
 ```
 
 Accepts one or more NoteRef (filename) positional arguments. Emits YAML-frontmatter + raw markdown body per ref, in argv order. Missing refs produce a frontmatter block with `error: not-found` and no body.
@@ -304,13 +304,13 @@ Candidates that fail any predicate after the structural pass are dropped, even i
 
 ## 8. Stack & Dependencies
 
-- Swift 6, SwiftPM executable product `zk-llm`, single target.
+- Swift 6, SwiftPM executable product `ta`, single target.
 - SwiftPM dependencies:
   - `apple/swift-argument-parser`
   - `apple/swift-markdown`
   - `jpsim/Yams`
 - Runtime: `rg` on `$PATH` preferred; `grep -l -r` fallback.
-- Build: `swift build -c release` produces `./.build/release/zk-llm`.
+- Build: `swift build -c release` produces `./.build/release/ta`.
 - No daemon, no bundled index, no inter-invocation cache.
 
 ## 9. Configuration
@@ -318,18 +318,18 @@ Candidates that fail any predicate after the structural pass are dropped, even i
 Archive location resolved in order:
 
 1. `--archive PATH` CLI flag.
-2. `ZK_LLM_ARCHIVE` environment variable.
-3. `~/.config/zk-llm/config.yaml` with a single key: `archive: /absolute/path`.
+2. `TA_DIR` environment variable.
+3. `~/.config/ta/config.yaml` with a single key: `archive: /absolute/path`.
 
 If none resolve, exit non-zero with a stderr message pointing at the config file path.
 
 ## 10. Project Layout
 
 ```
-zk-llm/
+ta/
 ├── Package.swift
 ├── Sources/
-│   └── zk-llm/
+│   └── ta/
 │       ├── main.swift                  # ArgumentParser root command
 │       ├── Commands/
 │       │   ├── SearchCommand.swift
@@ -354,7 +354,7 @@ zk-llm/
 │       └── Config/
 │           └── ArchiveResolver.swift
 └── Tests/
-    └── zk-llmTests/
+    └── taTests/
         ├── Fixtures/
         │   └── sample-archive/         # ~20 notes, hand-crafted
         └── <unit test files>
@@ -368,15 +368,15 @@ zk-llm/
   - Wiki-link resolution: exact 12-digit match, unambiguous prefix, ambiguous prefix (drops), missing.
   - AST walk: hashtags and wiki-links inside fenced code blocks and inline code are NOT extracted; inside emphasis and links they ARE.
   - BFS expansion: depth cap respected, cycles deduped, multiple-path nodes appear once with shortest depth and correct `via`.
-- One integration test: drive `zk-llm search --tag foo` against the fixture, snapshot the YAML output.
+- One integration test: drive `ta search --tag foo` against the fixture, snapshot the YAML output.
 - No benchmark suite for the demo. Performance is validated by running against the user's real 10K-note archive during the demo itself.
 
 ## 12. Deliverable for the Demo
 
 1. `swift build -c release` produces a binary.
-2. The binary runs against the user's real archive via `ZK_LLM_ARCHIVE`.
-3. A small agent skill (out of scope for this spec but in scope for the demo choreography) invokes `zk-llm search`, reads YAML, selects refs, invokes `zk-llm show`, summarizes findings.
-4. Perf bar: a typical `zk-llm search --tag foo --phrase "bar" --depth 3` completes in well under 2 seconds on a 10K-note archive on Apple Silicon. No hard SLA; "demo feels snappy" is the test.
+2. The binary runs against the user's real archive via `TA_DIR`.
+3. A small agent skill (out of scope for this spec but in scope for the demo choreography) invokes `ta search`, reads YAML, selects refs, invokes `ta show`, summarizes findings.
+4. Perf bar: a typical `ta search --tag foo --phrase "bar" --depth 3` completes in well under 2 seconds on a 10K-note archive on Apple Silicon. No hard SLA; "demo feels snappy" is the test.
 
 ## 13. Open Items Explicitly Deferred
 
@@ -384,7 +384,7 @@ zk-llm/
 |------|---|
 | `SearchExpressionParser` Boolean evaluation | Requires full in-memory index; evaluator can't run incrementally over a streaming candidate set. |
 | Reverse/backlink queries | Requires a pre-built reverse index; out of one-day scope. |
-| Tag-expansion edges in the graph | Explodes payload; `zk-llm tag` covers the use case. |
+| Tag-expansion edges in the graph | Explodes payload; `ta tag` covers the use case. |
 | Multiple filename schemes (Folgezettel, timestamp-to-second, title-only) | ADR-010 defines these; prototype hardcodes 12-digit timestamp. |
 | Fuzzy matching | Needs trigram index or similar. Out of scope. |
 | Persistent cache between invocations | Daemonization territory; out of scope. |
@@ -392,7 +392,7 @@ zk-llm/
 
 ## 14. References
 
-### zk-llm ADRs
+### ta ADRs
 
 - ADR-001 — Wiki-Link Recognition Regex.
 - ADR-002 — Hashtag Recognition Regex.

@@ -13,7 +13,7 @@ related: []
 
 ## Context
 
-The primary consumer of `zk-llm` is a coding agent composing retrieval queries programmatically. The surface area exposed to the agent determines:
+The primary consumer of `ta` is a coding agent composing retrieval queries programmatically. The surface area exposed to the agent determines:
 
 - How easy it is for the agent to construct a well-formed query.
 - How expressive the query language is without a full in-memory index.
@@ -33,7 +33,7 @@ We need a minimal surface that:
 We adopt **flag-based, repeatable predicates, AND-combined**:
 
 ```
-zk-llm search [--tag TAG]... [--phrase STR]... [--word WORD]...
+ta search [--tag TAG]... [--phrase STR]... [--word WORD]...
               [--depth N] [POSITIONAL_PHRASE]
 ```
 
@@ -44,15 +44,15 @@ zk-llm search [--tag TAG]... [--phrase STR]... [--word WORD]...
 - All predicates AND-combined. Every predicate must be satisfied for the note to be retained.
 - Zero predicates is an error (we require at least one).
 
-`zk-llm tag TAGNAME` is a syntactic sugar for `zk-llm search --tag TAGNAME`.
+`ta tag TAGNAME` is a syntactic sugar for `ta search --tag TAGNAME`.
 
 ### Rationale
 
 - **Each predicate is exactly one argv token.** No nested quoting. Agents that build argv arrays programmatically (Python's `subprocess.run([...])`, Swift's `Process.arguments`, etc.) never hit escape bugs.
 - **Repeatable flags mirror how agents think.** "Find notes tagged `foo` and `bar` containing the phrase `second-order thinking`" maps directly to `--tag foo --tag bar --phrase "second-order thinking"`.
 - **AND-only is cheap and composable.** Each predicate becomes one `rg -l` invocation; results are intersected in Swift. O(predicates × files) in the worst case. No expression evaluator needed.
-- **OR/NOT are synthesizable on the agent side.** For OR, the agent issues two separate `zk-llm search` calls and unions the YAML ref sets. For NOT, it filters its own working set. Agents are good at this.
-- **The positional phrase reduces common-case friction.** `zk-llm search "mental models"` is the natural entry point; adding `--phrase` is boilerplate when that's the only predicate.
+- **OR/NOT are synthesizable on the agent side.** For OR, the agent issues two separate `ta search` calls and unions the YAML ref sets. For NOT, it filters its own working set. Agents are good at this.
+- **The positional phrase reduces common-case friction.** `ta search "mental models"` is the natural entry point; adding `--phrase` is boilerplate when that's the only predicate.
 
 ### Predicate → `rg` mapping
 
@@ -69,7 +69,7 @@ All predicates run their own `rg` pass; file lists are intersected in Swift. The
 ### A. Single prefix-token query string (notmuch / mu / mairix style)
 
 ```
-zk-llm search 'tag:foo tag:bar "hello world" word:baz'
+ta search 'tag:foo tag:bar "hello world" word:baz'
 ```
 
 One argv argument, tokens inside separated by space, `tag:` and `word:` prefixes, bare tokens or quoted strings are phrases.
@@ -79,7 +79,7 @@ One argv argument, tokens inside separated by space, `tag:` and `word:` prefixes
 ### B. Full Boolean DSL via SearchExpressionParser
 
 ```
-zk-llm search 'tag:foo AND (bar OR baz) NOT qux'
+ta search 'tag:foo AND (bar OR baz) NOT qux'
 ```
 
 **Rejected because:** the evaluator needs a full in-memory note index. Each `NOT` clause requires enumerating the set complement, which in turn requires knowing the full corpus. Our CLI is cold-start per invocation — building that index every call is exactly the daemonization problem we deferred. Additionally, Boolean expression semantics are more surface area for the agent to get right; flag-based AND is much harder to misuse.
@@ -87,17 +87,17 @@ zk-llm search 'tag:foo AND (bar OR baz) NOT qux'
 ### C. Positional-only predicate list
 
 ```
-zk-llm search foo bar baz
+ta search foo bar baz
 ```
 
 All positional args implicitly AND'd as phrases.
 
-**Rejected because:** cannot distinguish `foo` (phrase) from `tag:foo` (tag) without prefix syntax or separate subcommands. Adding prefix syntax puts us back at alternative A. Separate subcommands (`zk-llm search-text`, `zk-llm search-tags`) explode the command surface.
+**Rejected because:** cannot distinguish `foo` (phrase) from `tag:foo` (tag) without prefix syntax or separate subcommands. Adding prefix syntax puts us back at alternative A. Separate subcommands (`ta search-text`, `ta search-tags`) explode the command surface.
 
 ### D. `--query` with structured JSON
 
 ```
-zk-llm search --query '{"tags":["foo"],"phrases":["bar"]}'
+ta search --query '{"tags":["foo"],"phrases":["bar"]}'
 ```
 
 **Rejected because:** maximum escape-sequence liability. Every JSON quote inside a shell quote is a chance to mis-nest. Agents would reach for `jq` or similar to emit the string safely — extra tooling for zero gain. Flag-based argv already has this structure, one slot per value.

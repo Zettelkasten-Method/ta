@@ -1,11 +1,11 @@
 ---
-title: "zk-llm — Documentation Index"
+title: "ta — Documentation Index"
 date: 2026-04-17
 ---
 
-# zk-llm — Documentation
+# ta — Documentation
 
-This directory holds the design documentation for the `zk-llm` CLI prototype. The layout mirrors the convention used by The Archive v2 (`~/Areas/TheArchive2/docs/`).
+This directory holds the design documentation for the `ta` CLI prototype. The layout mirrors the convention used by The Archive v2 (`~/Areas/TheArchive2/docs/`).
 
 ## Directory layout
 
@@ -18,7 +18,7 @@ There are no PRDs, SDDs, or guides yet — the prototype is small enough to live
 
 ## Start here
 
-1. **[`superpowers/specs/2026-04-17-zk-llm-cli-design.md`](superpowers/specs/2026-04-17-zk-llm-cli-design.md)** — the canonical design for the prototype. Read this first.
+1. **[`superpowers/specs/2026-04-17-ta-cli-design.md`](superpowers/specs/2026-04-17-ta-cli-design.md)** — the canonical design for the prototype. Read this first.
 2. The ADRs below capture specific decisions cited by the design spec.
 
 ## Architectural Decision Records
@@ -28,8 +28,8 @@ There are no PRDs, SDDs, or guides yet — the prototype is small enough to live
 | [ADR-001](adrs/ADR-001--Wiki-Link-Recognition-Regex.md) | Wiki-link recognition regex (`[[target]]`, `[[target\|display]]`) ported from The Archive v1 |
 | [ADR-002](adrs/ADR-002--Hashtag-Recognition-Regex.md) | Hashtag recognition regex (`#tag`) ported from The Archive v1 |
 | [ADR-003](adrs/ADR-003--CLI-Predicate-Surface.md) | CLI predicate surface — flag-based AND composition (`--tag`, `--phrase`, `--word`) |
-| [ADR-004](adrs/ADR-004--Search-Output-Flat-YAML.md) | `zk-llm search` / `zk-llm tag` output as flat YAML with `depth` and `via` metadata |
-| [ADR-005](adrs/ADR-005--Show-Output-Frontmatter-And-Raw-Markdown.md) | `zk-llm show` output as YAML frontmatter + raw markdown body |
+| [ADR-004](adrs/ADR-004--Search-Output-Flat-YAML.md) | `ta search` / `ta tag` output as flat YAML with `depth` and `via` metadata |
+| [ADR-005](adrs/ADR-005--Show-Output-Frontmatter-And-Raw-Markdown.md) | `ta show` output as YAML frontmatter + raw markdown body |
 
 ## Document conventions
 
@@ -50,6 +50,6 @@ There are no PRDs, SDDs, or guides yet — the prototype is small enough to live
 
 ## Relationship to The Archive v1 and v2
 
-- **The Archive v1** ships today and uses `lib.multimarkdown6`. The zk-llm CLI borrows v1's wiki-link and hashtag regexes (ADR-001, ADR-002) but does not link against v1 at runtime.
-- **The Archive v2** is the in-progress rewrite documented at `~/Areas/TheArchive2/docs/`. The zk-llm CLI borrows several concepts from its specs (NoteRef as filename, prefix-based ID resolution, tag extraction semantics) but is an independent codebase. Several v2 ADRs (ADR-010, ADR-013, ADR-020) and SDDs (Note-Discovery, Tag-Index) are cited from the zk-llm design spec where they are the authoritative source.
-- **zk-llm** itself is a one-day prototype aimed at demonstrating agent-driven retrieval over a Zettelkasten. It is not intended to be folded back into either v1 or v2 as-is.
+- **The Archive v1** ships today and uses `lib.multimarkdown6`. The ta CLI borrows v1's wiki-link and hashtag regexes (ADR-001, ADR-002) but does not link against v1 at runtime.
+- **The Archive v2** is the in-progress rewrite documented at `~/Areas/TheArchive2/docs/`. The ta CLI borrows several concepts from its specs (NoteRef as filename, prefix-based ID resolution, tag extraction semantics) but is an independent codebase. Several v2 ADRs (ADR-010, ADR-013, ADR-020) and SDDs (Note-Discovery, Tag-Index) are cited from the ta design spec where they are the authoritative source.
+- **ta** itself is a one-day prototype aimed at demonstrating agent-driven retrieval over a Zettelkasten. It is not intended to be folded back into either v1 or v2 as-is.
