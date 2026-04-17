@@ -15,9 +15,17 @@ public struct RipgrepRunner {
         public var description: String {
             switch self {
             case .toolFailed(let cmd, let code):
-                return "\(cmd) exited with code \(code)"
+                return """
+                    Search tool failed (exit \(code)): \(cmd)
+                    Check that the archive path is readable and contains .md files.
+                    """
             case .toolNotFound:
-                return "Neither 'rg' nor 'grep' was found on PATH"
+                return """
+                    Neither 'rg' (ripgrep) nor 'grep' was found on PATH.
+                    Install ripgrep:
+                      macOS:  brew install ripgrep
+                      Linux:  apt install ripgrep  (or equivalent)
+                    """
             }
         }
     }

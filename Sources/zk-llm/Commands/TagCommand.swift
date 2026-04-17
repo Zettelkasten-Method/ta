@@ -4,7 +4,14 @@ import ArgumentParser
 struct TagCommand: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "tag",
-        abstract: "Search for notes carrying a specific hashtag (convenience for 'search --tag')."
+        abstract: "Search for notes carrying a specific hashtag (convenience for 'search --tag').",
+        discussion: """
+        Pass the tag name without the leading '#'. Equivalent to 'search --tag NAME'.
+
+        Examples:
+          zk-llm tag thinking
+          zk-llm tag mental-models --depth 2
+        """
     )
 
     @Option(name: .customLong("archive"), help: "Path to the Zettelkasten archive.")

@@ -10,9 +10,19 @@ public struct ArchiveResolver {
         public var description: String {
             switch self {
             case .notConfigured(let path):
-                return "No archive configured. Pass --archive, set ZK_LLM_ARCHIVE, or write 'archive: /path/to/archive' to \(path)."
+                return """
+                    No archive configured. Choose one (highest precedence first):
+                      1. --archive /path/to/archive (flag on every invocation)
+                      2. export ZK_LLM_ARCHIVE=/path/to/archive
+                      3. echo 'archive: /path/to/archive' > \(path)
+                    Example:
+                      zk-llm search --archive ~/Zettelkasten --tag learning
+                    """
             case .notADirectory(let path):
-                return "Configured archive path is not a directory: \(path)"
+                return """
+                    Archive path is not a directory: \(path)
+                    Verify with 'ls' that the path exists and is a folder of .md files.
+                    """
             }
         }
     }

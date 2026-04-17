@@ -7,7 +7,13 @@ public enum SearchPipeline {
 
         public var description: String {
             switch self {
-            case .noPredicates: return "At least one of --tag, --phrase, --word, or a positional phrase is required."
+            case .noPredicates: return """
+                At least one of --tag, --phrase, --word, or a positional phrase is required.
+                Examples:
+                  zk-llm search --tag learning
+                  zk-llm search --phrase "second-order" --word inversion
+                  zk-llm search "mental models" --depth 2
+                """
             }
         }
     }
@@ -35,7 +41,18 @@ public enum SearchPipeline {
 struct SearchCommand: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "search",
-        abstract: "Search the Zettelkasten with AND-combined predicates."
+        abstract: "Search the Zettelkasten with AND-combined predicates.",
+        discussion: """
+        Predicates combine with AND. Provide one or more of --tag, --phrase, --word,
+        or a positional phrase. Results include direct hits (depth 0, with snippet)
+        plus outgoing-link neighbors up to --depth hops (default 3, cap 10).
+
+        Examples:
+          zk-llm search --tag learning
+          zk-llm search --tag thinking --phrase "second-order"
+          zk-llm search --word inversion --depth 2
+          zk-llm search "mental models"
+        """
     )
 
     @Option(name: .customLong("archive"), help: "Path to the Zettelkasten archive.")
