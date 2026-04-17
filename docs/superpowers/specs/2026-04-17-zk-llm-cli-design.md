@@ -46,6 +46,8 @@ Consequence: output is optimized for agent parsing and low token cost, not for h
 
 Three subcommands. All write to stdout; errors go to stderr with a non-zero exit code.
 
+The predicate surface (flag-based, AND-combined, repeatable) is specified in ADR-003. Output formats are specified in ADR-004 (search/tag) and ADR-005 (show).
+
 ### `zk-llm search`
 
 ```
@@ -204,6 +206,8 @@ Title-based resolution is deliberately omitted per ADR-010 rationale (titles are
 
 ## 6. Output Formats
 
+Rationale and alternatives for both output formats are captured in ADR-004 (search/tag) and ADR-005 (show).
+
 ### `search` and `tag`: YAML list
 
 ```yaml
@@ -263,6 +267,8 @@ Next note's body...
   ```
 
 ## 7. Structural Filter Details
+
+Wiki-link and hashtag recognition rules, including alternative considered and rejected, are captured in ADR-001 (wiki-links) and ADR-002 (hashtags).
 
 ### AST walk
 
@@ -381,11 +387,24 @@ zk-llm/
 
 ## 14. References
 
-- ADR-010 — Note Identity Parsing via Closed Scheme Types (filename-as-identity, prefix resolution cascade).
-- ADR-013 — Markdown-Only File Format.
-- ADR-020 — Filesystem-Filename Identity (NoteRef as filename).
-- SDD-Note-Discovery — search pipeline and result shape in The Archive v2.
-- SDD-Tag-Index — tag extraction semantics.
+### zk-llm ADRs
+
+- ADR-001 — Wiki-Link Recognition Regex.
+- ADR-002 — Hashtag Recognition Regex.
+- ADR-003 — CLI Predicate Surface — Flag-Based AND Composition.
+- ADR-004 — Search Output as Flat YAML with Depth and Via Metadata.
+- ADR-005 — Show Output as YAML Frontmatter + Raw Markdown.
+
+### The Archive v2 references
+
+- ADR-010 (Archive v2) — Note Identity Parsing via Closed Scheme Types (filename-as-identity, prefix resolution cascade).
+- ADR-013 (Archive v2) — Markdown-Only File Format.
+- ADR-020 (Archive v2) — Filesystem-Filename Identity (NoteRef as filename).
+- SDD-Note-Discovery (Archive v2) — search pipeline and result shape.
+- SDD-Tag-Index (Archive v2) — tag extraction semantics.
+
+### Third-party dependencies
+
 - `apple/swift-markdown` — https://github.com/apple/swift-markdown
 - `apple/swift-argument-parser` — https://github.com/apple/swift-argument-parser
 - `jpsim/Yams` — https://github.com/jpsim/Yams
