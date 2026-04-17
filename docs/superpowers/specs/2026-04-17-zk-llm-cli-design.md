@@ -171,13 +171,18 @@ struct ParsedNote {
     let outgoingLinks: [NoteRef]   // resolved wiki-link targets, in document order, deduped
     let unresolvedLinkText: [String]
     let tags: [String]             // leading "#" stripped, deduped, document order preserved
-    let firstHitOffset: Int?       // byte offset of first predicate hit, for snippet extraction;
-                                   // nil if node was not a direct hit
+    let nonCodeText: String        // concatenated non-code text from AST walk; used for
+                                   // predicate verification and snippet extraction.
 }
 
-// `show` does NOT use ParsedNote. It reads the file directly and extracts
-// only the metadata needed for frontmatter (title, tags, links), then
-// streams the raw body to stdout without materializing a full struct.
+// Snippet extraction is NOT a property of ParsedNote. The "first hit" offset
+// depends on which predicate we're matching against, which is a search-pass
+// concern. StructuralFilter computes the offset at use-site by searching
+// `nonCodeText` for the predicate's needle and derives the snippet from it.
+//
+// `show` does NOT use ParsedNote for the body. It streams the raw file
+// contents verbatim to stdout; a lightweight metadata parse (title, tags,
+// links) populates the frontmatter.
 
 struct SearchHit {
     let node: ParsedNote
