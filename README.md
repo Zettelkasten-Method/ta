@@ -44,6 +44,26 @@ ta show "202503091430 Mental Models.md" "202503091431 Second Order Thinking.md"
 
 Emits YAML frontmatter + raw markdown body per ref.
 
+## Agent skills
+
+`ta` is built for coding agents that drive the CLI on the user's behalf. Copy-pasteable skills live under `docs/skills/`:
+
+| Skill | Triggers on | Strategy |
+|---|---|---|
+| `ta-search` | Literal lookups. "Find my note about X." | Single query, read YAML, call `show` if needed. |
+| `ta-associative-recall` | Fuzzy / vibe queries. "That idea I had about..." | Fan out 5–8 literal probes across tag / phrase / word axes, aggregate, rank, offer pivots. |
+| `ta-deep-research` | Topic exploration. "Trace X through my notes." | Graph crawl + selective `show` + iterative extraction + synthesis with citations. |
+
+Claude Code users:
+
+```bash
+cp -r docs/skills/ta-search ~/.claude/skills/
+cp -r docs/skills/ta-associative-recall ~/.claude/skills/
+cp -r docs/skills/ta-deep-research ~/.claude/skills/
+```
+
+Other agents: see `docs/skills/README.md` for the frontmatter convention.
+
 ## Runtime dependencies
 
 - `rg` (ripgrep) on `$PATH` is preferred.
