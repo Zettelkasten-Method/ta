@@ -2,10 +2,10 @@
 import PackageDescription
 
 let package = Package(
-    name: "zk-llm",
+    name: "ta",
     platforms: [.macOS(.v13)],
     products: [
-        .executable(name: "zk-llm", targets: ["zk-llm"]),
+        .executable(name: "ta", targets: ["ta"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
@@ -14,7 +14,7 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "zk-llm",
+            name: "ta",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Markdown", package: "swift-markdown"),
@@ -22,8 +22,8 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "zk-llmTests",
-            dependencies: ["zk-llm"],
+            name: "taTests",
+            dependencies: ["ta"],
             resources: [.copy("Fixtures")]
         ),
     ]
