@@ -2,7 +2,7 @@
 
 A command-line retrieval tool over a Zettelkasten archive, shaped for consumption by coding agents. Prototype.
 
-See `docs/README.md` for the design documentation tree.
+See `docs/README.md` for the design documentation tree, and [`CHANGELOG.md`](CHANGELOG.md) for release notes.
 
 ## Build
 
