@@ -1,7 +1,7 @@
 import ArgumentParser
 
 @main
-struct Ta: ParsableCommand {
+struct TheArchiveCLI: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "ta",
         abstract: "Zettelkasten retrieval CLI for coding agents.",
