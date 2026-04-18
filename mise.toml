@@ -1,0 +1,120 @@
+# mise.toml — build, sign, notarize, and package the `ta` CLI.
+#
+# Run `mise tasks` to list available tasks, `mise run <name>` to execute.
+# See docs/packaging.md for one-time setup (Developer ID certs + notarytool
+# keychain profile).
+
+[env]
+# Cert common names (not secret — Team ID is public in the cert).
+# Override in mise.local.toml (gitignored) if you're using a different identity.
+DEV_ID_APP = "Developer ID Application: Christian Tietze (FRMDA3XRGC)"
+DEV_ID_INSTALLER = "Developer ID Installer: Christian Tietze (FRMDA3XRGC)"
+
+# notarytool keychain profile name created via `xcrun notarytool store-credentials`.
+NOTARY_PROFILE = "ta-notary"
+
+# Package identifier (reverse-DNS).
+PKG_IDENTIFIER = "de.christiantietze.ta"
+
+# Build outputs.
+SWIFT_PRODUCT = "ta"
+RELEASE_DIR = ".build/apple/Products/Release"
+
+[tasks.build]
+description = "Build universal (arm64 + x86_64) release binary"
+run = "swift build -c release --arch arm64 --arch x86_64"
+sources = ["Sources/**/*.swift", "Package.swift"]
+outputs = [".build/apple/Products/Release/ta"]
+
+[tasks.sign]
+description = "Codesign the universal binary with Developer ID Application"
+depends = ["build"]
+run = """
+codesign --force --timestamp --options runtime \\
+  --sign "$DEV_ID_APP" "$RELEASE_DIR/$SWIFT_PRODUCT"
+codesign --verify --strict --verbose=2 "$RELEASE_DIR/$SWIFT_PRODUCT"
+"""
+
+[tasks.pkg]
+description = "Build and sign .pkg installer"
+depends = ["sign"]
+run = """
+set -e
+VERSION=$("$RELEASE_DIR/$SWIFT_PRODUCT" --version | awk '{print $NF}')
+rm -rf dist/pkgroot
+mkdir -p dist/pkgroot/usr/local/bin
+cp "$RELEASE_DIR/$SWIFT_PRODUCT" dist/pkgroot/usr/local/bin/
+pkgbuild --root dist/pkgroot --install-location / \\
+  --identifier "$PKG_IDENTIFIER" \\
+  --version "$VERSION" \\
+  --sign "$DEV_ID_INSTALLER" \\
+  "dist/${SWIFT_PRODUCT}-${VERSION}-macos-universal.pkg"
+pkgutil --check-signature "dist/${SWIFT_PRODUCT}-${VERSION}-macos-universal.pkg"
+"""
+
+[tasks.notarize]
+description = "Submit the .pkg to Apple notary service and staple the ticket"
+depends = ["pkg"]
+run = """
+set -e
+VERSION=$("$RELEASE_DIR/$SWIFT_PRODUCT" --version | awk '{print $NF}')
+PKG="dist/${SWIFT_PRODUCT}-${VERSION}-macos-universal.pkg"
+xcrun notarytool submit "$PKG" \\
+  --keychain-profile "$NOTARY_PROFILE" \\
+  --wait --timeout 30m
+xcrun stapler staple "$PKG"
+xcrun stapler validate "$PKG"
+spctl --assess -vv --type install "$PKG"
+"""
+
+[tasks.tarball]
+description = "Build .tar.gz of the signed binary + docs"
+depends = ["sign"]
+run = """
+set -e
+VERSION=$("$RELEASE_DIR/$SWIFT_PRODUCT" --version | awk '{print $NF}')
+TARDIR="dist/${SWIFT_PRODUCT}-${VERSION}-macos-universal"
+rm -rf "$TARDIR"
+mkdir -p "$TARDIR"
+cp "$RELEASE_DIR/$SWIFT_PRODUCT" "$TARDIR/"
+cp README.md LICENSE CHANGELOG.md "$TARDIR/"
+tar -czf "dist/${SWIFT_PRODUCT}-${VERSION}-macos-universal.tar.gz" \\
+  -C dist "${SWIFT_PRODUCT}-${VERSION}-macos-universal"
+"""
+
+[tasks.sums]
+description = "Write SHA-256 sums for release assets"
+depends = ["notarize", "tarball"]
+run = """
+set -e
+VERSION=$("$RELEASE_DIR/$SWIFT_PRODUCT" --version | awk '{print $NF}')
+cd dist && shasum -a 256 \\
+  "${SWIFT_PRODUCT}-${VERSION}-macos-universal.pkg" \\
+  "${SWIFT_PRODUCT}-${VERSION}-macos-universal.tar.gz" \\
+  > SHA256SUMS
+cat SHA256SUMS
+"""
+
+[tasks.release]
+description = "Full release pipeline: build, sign, pkg, notarize, tarball, sums"
+depends = ["sums"]
+
+[tasks.clean]
+description = "Remove build and dist artifacts"
+run = "rm -rf .build dist"
+
+[tasks.verify-setup]
+description = "Verify Developer ID certs and notary profile are present"
+run = """
+set -e
+echo "== Developer ID Application =="
+security find-identity -v -p codesigning | grep "Developer ID Application" \\
+  || { echo "MISSING: Developer ID Application cert. See docs/packaging.md." >&2; exit 1; }
+echo "== Developer ID Installer =="
+security find-identity -v | grep "Developer ID Installer" \\
+  || { echo "MISSING: Developer ID Installer cert. See docs/packaging.md." >&2; exit 1; }
+echo "== notarytool keychain profile \\"$NOTARY_PROFILE\\" =="
+xcrun notarytool history --keychain-profile "$NOTARY_PROFILE" >/dev/null 2>&1 \\
+  || { echo "MISSING: notarytool profile '$NOTARY_PROFILE'. See docs/packaging.md." >&2; exit 1; }
+echo "All prerequisites present."
+"""

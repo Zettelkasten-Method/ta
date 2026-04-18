@@ -74,3 +74,15 @@ Other agents: see [`docs/skills/README.md`](docs/skills/README.md) for the front
 ```bash
 swift test
 ```
+
+## Packaging and release
+
+Signing, notarizing, and assembling `.pkg` / `.tar.gz` release artifacts is automated via [mise](https://mise.jdx.dev/):
+
+```bash
+mise tasks              # list available tasks
+mise run verify-setup   # check certs + notary profile are configured
+mise run release        # full pipeline: build → sign → pkg → notarize → tarball
+```
+
+See [`docs/packaging.md`](docs/packaging.md) for one-time setup (Developer ID certs + `notarytool store-credentials`).
