@@ -85,9 +85,19 @@ NOTARY_PROFILE = "my-profile"
 PKG_IDENTIFIER = "com.yourdomain.ta"
 ```
 
+## Releasing from a fork
+
+If you're distributing your own build of `ta` under your Apple Developer account:
+
+1. Install both Developer ID certs (see [§2](#2-install-both-developer-id-certs)).
+2. Store notary creds under a profile name of your choice (see [§3](#3-store-notarytool-credentials-in-the-keychain)).
+3. Create `mise.local.toml` at the repo root (gitignored) overriding at minimum the four env vars shown under [Per-developer overrides](#per-developer-overrides).
+4. Run `mise run verify-setup` — confirms your identities, notary profile, and toolchain are wired up.
+5. Run `mise run release` — artifacts land in `dist/`.
+
 ## Bumping the version
 
-The version reported by `ta --version` comes from `version: "X.Y.Z"` in `Sources/ta/TheArchiveCLI.swift`. The packaging tasks parse that output to name artifacts. To bump:
+The version lives as `version: "X.Y.Z"` in `Sources/ta/TheArchiveCLI.swift` and is read by `scripts/get-version.sh` so artifact filenames stay in lockstep with the declared version. To bump:
 
 1. Edit `Sources/ta/TheArchiveCLI.swift`.
 2. Add a new `## [X.Y.Z] - YYYY-MM-DD` block at the top of `CHANGELOG.md` (move `[Unreleased]` content into it).
@@ -102,6 +112,14 @@ After `mise run release`, `dist/` contains:
 - `ta-X.Y.Z-macos-universal.pkg` — Developer ID Installer-signed, contains Developer ID Application-signed binary, notarized and stapled. Gatekeeper-clean on first run.
 - `ta-X.Y.Z-macos-universal.tar.gz` — same signed binary plus `README.md`, `LICENSE`, `CHANGELOG.md`. Gatekeeper will still quarantine the binary when extracted from a tarball downloaded via browser (stapling doesn't apply to bare Mach-O). Users need `xattr -d com.apple.quarantine ta` or right-click → Open the first time.
 - `SHA256SUMS` — hashes for both, for release notes.
+
+### Integrity anchors
+
+The `.pkg` is the authoritative integrity artifact: its Developer ID Installer signature and Apple notarization ticket are verifiable offline with `pkgutil --check-signature` and `spctl --assess --type install`. `SHA256SUMS` is a convenience for detecting transport corruption or mismatched artifacts on the release page; it is not itself signed. The `.tar.gz` has no stapled ticket (Apple doesn't support stapling to tarballs), so users extracting it must rely on the embedded binary's Developer ID Application signature (`codesign -dv --verbose=4 ta`) for verification.
+
+### Entitlements
+
+`ta` ships with no entitlements file — it's a pure CLI with no JIT, no DYLD injection, and no disabled library validation. The hardened runtime's secure defaults apply.
 
 ## Why a `.pkg`?
 
