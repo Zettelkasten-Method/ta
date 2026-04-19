@@ -10,7 +10,7 @@ See `docs/README.md` for the design documentation tree, and [`CHANGELOG.md`](CHA
 swift build -c release
 ```
 
-The binary lands at `./.build/release/ta`.
+The binary lands at `./.build/release/ta`. For a signed, notarized universal binary suitable for redistribution, see [Packaging and release](#packaging-and-release) below.
 
 ## Configure
 
