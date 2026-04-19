@@ -39,9 +39,18 @@ codesign --verify --strict --verbose=2 "$RELEASE_DIR/$SWIFT_PRODUCT"
 description = "Clear dist/ of previous release artifacts"
 run = "rm -rf dist && mkdir -p dist"
 
+[tasks.check-changelog]
+description = "Verify CHANGELOG.md has a heading matching the current version"
+run = """
+set -e
+VERSION=$(scripts/get-version.sh)
+grep -qE "^## \\[${VERSION}\\]" CHANGELOG.md \\
+  || { echo "MISSING: CHANGELOG.md has no heading '## [${VERSION}]'. Move [Unreleased] content into a new version block before releasing." >&2; exit 1; }
+"""
+
 [tasks.pkg]
 description = "Build and sign .pkg installer (staged in dist/unstapled/)"
-depends = ["sign", "prep"]
+depends = ["sign", "prep", "check-changelog"]
 run = """
 set -e
 VERSION=$(scripts/get-version.sh)
