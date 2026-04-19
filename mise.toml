@@ -40,7 +40,7 @@ description = "Build and sign .pkg installer"
 depends = ["sign"]
 run = """
 set -e
-VERSION=$("$RELEASE_DIR/$SWIFT_PRODUCT" --version | awk '{print $NF}')
+VERSION=$(scripts/get-version.sh)
 rm -rf dist/pkgroot
 mkdir -p dist/pkgroot/usr/local/bin
 cp "$RELEASE_DIR/$SWIFT_PRODUCT" dist/pkgroot/usr/local/bin/
@@ -57,7 +57,7 @@ description = "Submit the .pkg to Apple notary service and staple the ticket"
 depends = ["pkg"]
 run = """
 set -e
-VERSION=$("$RELEASE_DIR/$SWIFT_PRODUCT" --version | awk '{print $NF}')
+VERSION=$(scripts/get-version.sh)
 PKG="dist/${SWIFT_PRODUCT}-${VERSION}-macos-universal.pkg"
 xcrun notarytool submit "$PKG" \\
   --keychain-profile "$NOTARY_PROFILE" \\
@@ -72,7 +72,7 @@ description = "Build .tar.gz of the signed binary + docs"
 depends = ["sign"]
 run = """
 set -e
-VERSION=$("$RELEASE_DIR/$SWIFT_PRODUCT" --version | awk '{print $NF}')
+VERSION=$(scripts/get-version.sh)
 TARDIR="dist/${SWIFT_PRODUCT}-${VERSION}-macos-universal"
 rm -rf "$TARDIR"
 mkdir -p "$TARDIR"
@@ -87,7 +87,7 @@ description = "Write SHA-256 sums for release assets"
 depends = ["notarize", "tarball"]
 run = """
 set -e
-VERSION=$("$RELEASE_DIR/$SWIFT_PRODUCT" --version | awk '{print $NF}')
+VERSION=$(scripts/get-version.sh)
 cd dist && shasum -a 256 \\
   "${SWIFT_PRODUCT}-${VERSION}-macos-universal.pkg" \\
   "${SWIFT_PRODUCT}-${VERSION}-macos-universal.tar.gz" \\
