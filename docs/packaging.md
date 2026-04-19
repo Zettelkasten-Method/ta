@@ -87,9 +87,9 @@ PKG_IDENTIFIER = "com.yourdomain.ta"
 
 ## Bumping the version
 
-The version reported by `ta --version` comes from `version: "X.Y.Z"` in `Sources/ta/Ta.swift`. The packaging tasks parse that output to name artifacts. To bump:
+The version reported by `ta --version` comes from `version: "X.Y.Z"` in `Sources/ta/TheArchiveCLI.swift`. The packaging tasks parse that output to name artifacts. To bump:
 
-1. Edit `Sources/ta/Ta.swift`.
+1. Edit `Sources/ta/TheArchiveCLI.swift`.
 2. Add a new `## [X.Y.Z] - YYYY-MM-DD` block at the top of `CHANGELOG.md` (move `[Unreleased]` content into it).
 3. `mise run release`.
 4. `git tag -a X.Y.Z -m "X.Y.Z"` and push.
