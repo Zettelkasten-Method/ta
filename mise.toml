@@ -120,17 +120,36 @@ description = "Remove build and dist artifacts"
 run = "rm -rf .build dist"
 
 [tasks.verify-setup]
-description = "Verify Developer ID certs and notary profile are present"
+description = "Verify Developer ID certs, notary profile, and toolchain are present"
 run = """
 set -e
+echo "== Xcode Command Line Tools =="
+xcode-select -p >/dev/null 2>&1 \\
+  || { echo "MISSING: Xcode Command Line Tools. Install with 'xcode-select --install'." >&2; exit 1; }
+echo "CLT: $(xcode-select -p)"
+
+echo "== swift =="
+command -v swift >/dev/null \\
+  || { echo "MISSING: swift not on PATH. Install Xcode or the toolchain." >&2; exit 1; }
+echo "$(swift --version | head -n1)"
+
+echo "== pkgbuild / notarytool / stapler =="
+for tool in pkgbuild notarytool stapler; do
+  xcrun --find "$tool" >/dev/null 2>&1 \\
+    || { echo "MISSING: xcrun cannot find '$tool'. Reinstall Xcode CLT." >&2; exit 1; }
+done
+
 echo "== Developer ID Application =="
-security find-identity -v -p codesigning | grep "Developer ID Application" \\
-  || { echo "MISSING: Developer ID Application cert. See docs/packaging.md." >&2; exit 1; }
+security find-identity -v -p codesigning | grep -F "$DEV_ID_APP" \\
+  || { echo "MISSING: cert matching DEV_ID_APP='$DEV_ID_APP'. Override in mise.local.toml or see docs/packaging.md." >&2; exit 1; }
+
 echo "== Developer ID Installer =="
-security find-identity -v | grep "Developer ID Installer" \\
-  || { echo "MISSING: Developer ID Installer cert. See docs/packaging.md." >&2; exit 1; }
+security find-identity -v | grep -F "$DEV_ID_INSTALLER" \\
+  || { echo "MISSING: cert matching DEV_ID_INSTALLER='$DEV_ID_INSTALLER'. Override in mise.local.toml or see docs/packaging.md." >&2; exit 1; }
+
 echo "== notarytool keychain profile \\"$NOTARY_PROFILE\\" =="
 xcrun notarytool history --keychain-profile "$NOTARY_PROFILE" >/dev/null 2>&1 \\
   || { echo "MISSING: notarytool profile '$NOTARY_PROFILE'. See docs/packaging.md." >&2; exit 1; }
+
 echo "All prerequisites present."
 """
