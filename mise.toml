@@ -35,13 +35,16 @@ codesign --force --timestamp --options runtime \\
 codesign --verify --strict --verbose=2 "$RELEASE_DIR/$SWIFT_PRODUCT"
 """
 
+[tasks.prep]
+description = "Clear dist/ of previous release artifacts"
+run = "rm -rf dist && mkdir -p dist"
+
 [tasks.pkg]
 description = "Build and sign .pkg installer"
-depends = ["sign"]
+depends = ["sign", "prep"]
 run = """
 set -e
 VERSION=$(scripts/get-version.sh)
-rm -rf dist/pkgroot
 mkdir -p dist/pkgroot/usr/local/bin
 cp "$RELEASE_DIR/$SWIFT_PRODUCT" dist/pkgroot/usr/local/bin/
 pkgbuild --root dist/pkgroot --install-location / \\
@@ -69,12 +72,11 @@ spctl --assess -vv --type install "$PKG"
 
 [tasks.tarball]
 description = "Build .tar.gz of the signed binary + docs"
-depends = ["sign"]
+depends = ["sign", "prep"]
 run = """
 set -e
 VERSION=$(scripts/get-version.sh)
 TARDIR="dist/${SWIFT_PRODUCT}-${VERSION}-macos-universal"
-rm -rf "$TARDIR"
 mkdir -p "$TARDIR"
 cp "$RELEASE_DIR/$SWIFT_PRODUCT" "$TARDIR/"
 cp README.md LICENSE CHANGELOG.md "$TARDIR/"
