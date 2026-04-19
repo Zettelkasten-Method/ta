@@ -40,34 +40,48 @@ description = "Clear dist/ of previous release artifacts"
 run = "rm -rf dist && mkdir -p dist"
 
 [tasks.pkg]
-description = "Build and sign .pkg installer"
+description = "Build and sign .pkg installer (staged in dist/unstapled/)"
 depends = ["sign", "prep"]
 run = """
 set -e
 VERSION=$(scripts/get-version.sh)
-mkdir -p dist/pkgroot/usr/local/bin
+mkdir -p dist/pkgroot/usr/local/bin dist/unstapled
 cp "$RELEASE_DIR/$SWIFT_PRODUCT" dist/pkgroot/usr/local/bin/
 pkgbuild --root dist/pkgroot --install-location / \\
   --identifier "$PKG_IDENTIFIER" \\
   --version "$VERSION" \\
   --sign "$DEV_ID_INSTALLER" \\
-  "dist/${SWIFT_PRODUCT}-${VERSION}-macos-universal.pkg"
-pkgutil --check-signature "dist/${SWIFT_PRODUCT}-${VERSION}-macos-universal.pkg"
+  "dist/unstapled/${SWIFT_PRODUCT}-${VERSION}-macos-universal.pkg"
+pkgutil --check-signature "dist/unstapled/${SWIFT_PRODUCT}-${VERSION}-macos-universal.pkg"
 """
 
 [tasks.notarize]
-description = "Submit the .pkg to Apple notary service and staple the ticket"
+description = "Notarize and staple the staged .pkg, then promote to dist/"
 depends = ["pkg"]
 run = """
 set -e
 VERSION=$(scripts/get-version.sh)
-PKG="dist/${SWIFT_PRODUCT}-${VERSION}-macos-universal.pkg"
-xcrun notarytool submit "$PKG" \\
-  --keychain-profile "$NOTARY_PROFILE" \\
-  --wait --timeout 30m
-xcrun stapler staple "$PKG"
-xcrun stapler validate "$PKG"
-spctl --assess -vv --type install "$PKG"
+STAGED="dist/unstapled/${SWIFT_PRODUCT}-${VERSION}-macos-universal.pkg"
+FINAL="dist/${SWIFT_PRODUCT}-${VERSION}-macos-universal.pkg"
+LOG=$(mktemp)
+if ! xcrun notarytool submit "$STAGED" \\
+      --keychain-profile "$NOTARY_PROFILE" \\
+      --wait --timeout 30m 2>&1 | tee "$LOG"; then
+  SUBMISSION_ID=$(awk '/^[[:space:]]*id:/{print $NF; exit}' "$LOG" || true)
+  if [ -n "$SUBMISSION_ID" ]; then
+    echo "=== notarytool log $SUBMISSION_ID ===" >&2
+    xcrun notarytool log "$SUBMISSION_ID" \\
+      --keychain-profile "$NOTARY_PROFILE" >&2 || true
+  fi
+  rm -f "$LOG"
+  exit 1
+fi
+rm -f "$LOG"
+xcrun stapler staple "$STAGED"
+xcrun stapler validate "$STAGED"
+spctl --assess -vv --type install "$STAGED"
+mv "$STAGED" "$FINAL"
+rmdir dist/unstapled 2>/dev/null || true
 """
 
 [tasks.tarball]
