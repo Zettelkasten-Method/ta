@@ -27,3 +27,6 @@ First prototype release of `ta` — a command-line retrieval tool over a Zettelk
 - **Agent skills bundle** under [`docs/skills/`](docs/skills/) — three copy-pasteable skills for coding agents: `ta-search` (literal lookups), `ta-associative-recall` (fan-out recall for fuzzy queries), `ta-deep-research` (graph crawl + synthesis).
 - **Design documentation** — [design spec](docs/superpowers/specs/2026-04-17-ta-cli-design.md), [implementation plan](docs/superpowers/plans/2026-04-17-ta-cli.md), and [ADRs 001–005](docs/adrs/).
 - 72 tests across 16 suites, including end-to-end integration tests over a 13-note fixture archive.
+
+[Unreleased]: https://codeberg.org/ctietze/ta/compare/0.1.0...HEAD
+[0.1.0]: https://codeberg.org/ctietze/ta/releases/tag/0.1.0
