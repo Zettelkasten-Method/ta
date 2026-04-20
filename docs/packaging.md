@@ -102,8 +102,9 @@ The version lives as `version: "X.Y.Z"` in `Sources/ta/TheArchiveCLI.swift` and 
 1. Edit `Sources/ta/TheArchiveCLI.swift`.
 2. Add a new `## [X.Y.Z] - YYYY-MM-DD` block at the top of `CHANGELOG.md` (move `[Unreleased]` content into it).
 3. `mise run release`.
-4. `git tag -a X.Y.Z -m "X.Y.Z"` and push.
-5. Create the release on the forges (Codeberg + GitHub) with the artifacts from `dist/`.
+4. Invoke the `/draft-release-notes` skill (see `.claude/skills/draft-release-notes/`) to generate `dist/ta-X.Y.Z-release-notes.md` — use its contents as the forge release body.
+5. `git tag -a X.Y.Z -m "X.Y.Z"` and push.
+6. Create the release on the forges (Codeberg + GitHub) with the artifacts from `dist/`.
 
 ## What each signed artifact looks like
 
