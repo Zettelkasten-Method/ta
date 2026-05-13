@@ -51,9 +51,7 @@ public enum NoteParser {
     }
 
     private static func titleFromFilename(_ filename: String, prefix: String) -> String {
-        var stem = filename
-        if stem.hasSuffix(".md") { stem.removeLast(3) }
-        else if stem.hasSuffix(".txt") { stem.removeLast(4) }
+        var stem = (filename as NSString).deletingPathExtension
         guard stem.hasPrefix(prefix) else { return stem }
         stem.removeFirst(prefix.count)
         if let first = stem.first, first == " " || first == "-" || first == "_" {

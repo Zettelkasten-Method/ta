@@ -2,6 +2,8 @@
 import Foundation
 
 public struct NoteIndex: Sendable {
+    public static let supportedExtensions: [String] = ["md", "txt"]
+
     public let archiveDirectory: URL
     private let byTimestampID: [String: [NoteRef]]
     private let sortedTimestampIDs: [String]
@@ -17,7 +19,8 @@ public struct NoteIndex: Sendable {
             options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
         )
         var map: [String: [NoteRef]] = [:]
-        for url in contents where url.pathExtension == "md" || url.pathExtension == "txt" {
+        let extensions = Set(Self.supportedExtensions)
+        for url in contents where extensions.contains(url.pathExtension) {
             let filename = url.lastPathComponent
             guard let prefix = Self.extractTimestampPrefix(filename) else { continue }
             map[prefix, default: []].append(NoteRef(filename: filename))
