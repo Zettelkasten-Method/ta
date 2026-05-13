@@ -18,7 +18,8 @@ struct SearchYAMLEmitterTests {
             outgoingLinks: [NoteRef(filename: "202503091431 Second Order Thinking.md")],
             unresolvedLinkText: [],
             tags: ["learning", "thinking"],
-            nonCodeText: ""
+            nonCodeText: "",
+            rawText: ""
         )
         let hit = SearchHit(note: note, depth: 0, via: nil, snippet: "second-order thinking")
         let out = SearchYAMLEmitter.emit([hit])
@@ -40,7 +41,8 @@ struct SearchYAMLEmitterTests {
             outgoingLinks: [],
             unresolvedLinkText: [],
             tags: ["thinking"],
-            nonCodeText: ""
+            nonCodeText: "",
+            rawText: ""
         )
         let hit = SearchHit(
             note: note,

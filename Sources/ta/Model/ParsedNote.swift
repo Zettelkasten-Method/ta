@@ -9,6 +9,7 @@ public struct ParsedNote: Sendable, Equatable {
     public let unresolvedLinkText: [String]
     public let tags: [String]
     public let nonCodeText: String
+    public let rawText: String
 
     public init(
         ref: NoteRef,
@@ -17,7 +18,8 @@ public struct ParsedNote: Sendable, Equatable {
         outgoingLinks: [NoteRef],
         unresolvedLinkText: [String],
         tags: [String],
-        nonCodeText: String
+        nonCodeText: String,
+        rawText: String
     ) {
         self.ref = ref
         self.title = title
@@ -26,5 +28,6 @@ public struct ParsedNote: Sendable, Equatable {
         self.unresolvedLinkText = unresolvedLinkText
         self.tags = tags
         self.nonCodeText = nonCodeText
+        self.rawText = rawText
     }
 }

@@ -51,6 +51,42 @@ struct StructuralFilterTests {
         #expect(hits[0].snippet?.contains("Second-order") == true)
     }
 
+    @Test("phrase predicate matches text inside inline code")
+    func phraseInsideInlineCode() throws {
+        let tmp = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ta-sf-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: tmp, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        let url = tmp.appendingPathComponent("111111111111 inline code note.md")
+        try "A `LSUIElement` aka menu bar extra is a thing.".write(to: url, atomically: true, encoding: .utf8)
+        let index = try NoteIndex(archiveDirectory: tmp)
+        let filter = StructuralFilter(index: index, archiveDirectory: tmp)
+        let hits = try filter.verify(
+            candidates: [NoteRef(filename: url.lastPathComponent)],
+            predicates: [.phrase("LSUIElement")]
+        )
+        #expect(hits.count == 1)
+        #expect(hits[0].snippet?.contains("LSUIElement") == true)
+    }
+
+    @Test("word predicate matches text inside inline code")
+    func wordInsideInlineCode() throws {
+        let tmp = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ta-sf-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: tmp, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        let url = tmp.appendingPathComponent("111111111111 inline code word.md")
+        try "Launching from a `LSUIElement` status bar app works.".write(to: url, atomically: true, encoding: .utf8)
+        let index = try NoteIndex(archiveDirectory: tmp)
+        let filter = StructuralFilter(index: index, archiveDirectory: tmp)
+        let hits = try filter.verify(
+            candidates: [NoteRef(filename: url.lastPathComponent)],
+            predicates: [.word("LSUIElement")]
+        )
+        #expect(hits.count == 1)
+        #expect(hits[0].snippet?.contains("LSUIElement") == true)
+    }
+
     @Test("multiple predicates all must match")
     func allMatch() throws {
         let index = try NoteIndex(archiveDirectory: fixtureURL())

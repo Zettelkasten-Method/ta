@@ -45,7 +45,8 @@ public enum NoteParser {
             outgoingLinks: resolved,
             unresolvedLinkText: unresolved,
             tags: tags,
-            nonCodeText: nonCodeText
+            nonCodeText: nonCodeText,
+            rawText: source
         )
     }
 
