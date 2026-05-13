@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-05-13
+
+Search now finds matches it previously hid: text inside Markdown inline-code spans (e.g. `` `LSUIElement` ``), notes stored as `.txt`, and queries that don't match the casing of the source.
+
+### Added
+
+- **`.txt` notes are indexed alongside `.md`.** `NoteIndex` enumerates both extensions and the supported set is centralized at `NoteIndex.supportedExtensions`. Adding a third extension is now a one-line change. `ta show` already worked on `.txt` files via byte-for-byte body emission; this commit makes them discoverable by `ta search` and `ta tag`.
+- **`ParsedNote.rawText`** carries the original source string alongside the existing `nonCodeText` projection.
+
+### Changed
+
+- **`ta search`'s `--word` and `--phrase` predicates now match inside inline-code spans.** Previously, terms wrapped in backticks (e.g. `` `LSUIElement` ``) were stripped before search and invisible to all predicates. Word and phrase predicates now match against the raw note text. Hashtag matching (`--tag`) still respects inline-code stripping — `#foo` inside backticks is not counted as a tag, and `[[link]]` inside backticks is not counted as a wiki link.
+- **All predicates (`--tag`, `--phrase`, `--word`) are now case-insensitive.** `ta search --word lsuielement` finds `LSUIElement`; `ta search --tag macos` finds `#MacOS`. Both the ripgrep/grep candidate-selection layer and the in-process structural filter use case-insensitive matching consistently.
+- **Snippets in search output** come from the raw note text, so the surrounding context shown to the user matches what they would see in the file (including any backticks).
+
+### Internal
+
+- `RipgrepRunner` derives its `-g`/`--include` flags from `NoteIndex.supportedExtensions` rather than hardcoding `*.md`.
+- `NoteParser.titleFromFilename` uses `NSString.deletingPathExtension` instead of magic-numbered `removeLast(3|4)` branches.
+- 7 new tests across `NoteIndexTests`, `RipgrepRunnerTests`, `StructuralFilterTests`, and `IntegrationTests`; the suite is now 79 tests across 16 suites.
+
 ## [0.1.0] - 2026-04-17
 
 First prototype release of `ta` — a command-line retrieval tool over a Zettelkasten archive, shaped for coding agents.
@@ -28,5 +49,6 @@ First prototype release of `ta` — a command-line retrieval tool over a Zettelk
 - **Design documentation** — [design spec](docs/superpowers/specs/2026-04-17-ta-cli-design.md), [implementation plan](docs/superpowers/plans/2026-04-17-ta-cli.md), and [ADRs 001–005](docs/adrs/).
 - 72 tests across 16 suites, including end-to-end integration tests over a 13-note fixture archive.
 
-[Unreleased]: https://codeberg.org/ctietze/ta/compare/0.1.0...HEAD
+[Unreleased]: https://codeberg.org/ctietze/ta/compare/0.2.0...HEAD
+[0.2.0]: https://codeberg.org/ctietze/ta/releases/tag/0.2.0
 [0.1.0]: https://codeberg.org/ctietze/ta/releases/tag/0.1.0
