@@ -87,6 +87,28 @@ struct StructuralFilterTests {
         #expect(hits[0].snippet?.contains("LSUIElement") == true)
     }
 
+    @Test("phrase, word, and tag predicates are case-insensitive")
+    func caseInsensitive() throws {
+        let tmp = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ta-sf-ci-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: tmp, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        let url = tmp.appendingPathComponent("111111111111 case note.md")
+        try "A `LSUIElement` line and #MacOS tag.".write(to: url, atomically: true, encoding: .utf8)
+        let index = try NoteIndex(archiveDirectory: tmp)
+        let filter = StructuralFilter(index: index, archiveDirectory: tmp)
+        let candidate = NoteRef(filename: url.lastPathComponent)
+
+        let phraseHits = try filter.verify(candidates: [candidate], predicates: [.phrase("lsuielement")])
+        #expect(phraseHits.count == 1)
+
+        let wordHits = try filter.verify(candidates: [candidate], predicates: [.word("LSUIELEMENT")])
+        #expect(wordHits.count == 1)
+
+        let tagHits = try filter.verify(candidates: [candidate], predicates: [.tag("macos")])
+        #expect(tagHits.count == 1)
+    }
+
     @Test("multiple predicates all must match")
     func allMatch() throws {
         let index = try NoteIndex(archiveDirectory: fixtureURL())

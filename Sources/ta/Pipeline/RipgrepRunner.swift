@@ -65,20 +65,20 @@ public struct RipgrepRunner {
         if useRipgrep {
             switch predicate {
             case .tag(let tag):
-                args = ["rg", "-l", "-g", "*.md", "-g", "*.txt", "--", "#\(tag)\\b", archive.path]
+                args = ["rg", "-l", "-i", "-g", "*.md", "-g", "*.txt", "--", "#\(tag)\\b", archive.path]
             case .phrase(let phrase):
-                args = ["rg", "-l", "-F", "-g", "*.md", "-g", "*.txt", "--", phrase, archive.path]
+                args = ["rg", "-l", "-i", "-F", "-g", "*.md", "-g", "*.txt", "--", phrase, archive.path]
             case .word(let word):
-                args = ["rg", "-l", "-w", "-F", "-g", "*.md", "-g", "*.txt", "--", word, archive.path]
+                args = ["rg", "-l", "-i", "-w", "-F", "-g", "*.md", "-g", "*.txt", "--", word, archive.path]
             }
         } else {
             switch predicate {
             case .tag(let tag):
-                args = ["grep", "-l", "-r", "--include=*.md", "--include=*.txt", "-E", "#\(tag)([^[:alnum:]_-]|$)", archive.path]
+                args = ["grep", "-l", "-r", "-i", "--include=*.md", "--include=*.txt", "-E", "#\(tag)([^[:alnum:]_-]|$)", archive.path]
             case .phrase(let phrase):
-                args = ["grep", "-l", "-r", "--include=*.md", "--include=*.txt", "-F", phrase, archive.path]
+                args = ["grep", "-l", "-r", "-i", "--include=*.md", "--include=*.txt", "-F", phrase, archive.path]
             case .word(let word):
-                args = ["grep", "-l", "-r", "--include=*.md", "--include=*.txt", "-w", "-F", word, archive.path]
+                args = ["grep", "-l", "-r", "-i", "--include=*.md", "--include=*.txt", "-w", "-F", word, archive.path]
             }
         }
         process.arguments = args

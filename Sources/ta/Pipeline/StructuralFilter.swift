@@ -42,14 +42,14 @@ public struct StructuralFilter {
         for predicate in predicates {
             switch predicate {
             case .tag(let tag):
-                guard note.tags.contains(tag) else { return nil }
+                guard note.tags.contains(where: { $0.caseInsensitiveCompare(tag) == .orderedSame }) else { return nil }
                 let needle = "#\(tag)"
-                if let range = note.rawText.range(of: needle) {
+                if let range = note.rawText.range(of: needle, options: .caseInsensitive) {
                     let offset = note.rawText.distance(from: note.rawText.startIndex, to: range.lowerBound)
                     firstHit = firstHit.map { min($0, offset) } ?? offset
                 }
             case .phrase(let phrase):
-                guard let range = note.rawText.range(of: phrase) else { return nil }
+                guard let range = note.rawText.range(of: phrase, options: .caseInsensitive) else { return nil }
                 let offset = note.rawText.distance(from: note.rawText.startIndex, to: range.lowerBound)
                 firstHit = firstHit.map { min($0, offset) } ?? offset
             case .word(let word):
@@ -64,7 +64,7 @@ public struct StructuralFilter {
     private static func wordMatch(word: String, in text: String) -> Range<String.Index>? {
         let escaped = NSRegularExpression.escapedPattern(for: word)
         let pattern = "\\b\(escaped)\\b"
-        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return nil }
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { return nil }
         let nsRange = NSRange(text.startIndex..., in: text)
         guard let match = regex.firstMatch(in: text, options: [], range: nsRange) else { return nil }
         return Range(match.range, in: text)

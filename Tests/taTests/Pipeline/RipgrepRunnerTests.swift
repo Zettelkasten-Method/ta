@@ -69,7 +69,26 @@ struct RipgrepRunnerTests {
             archiveDirectory: root
         )
         let names = Set(refs.map(\.filename))
-        #expect(names == ["delta.md"])
+        // Matches "foo" in delta.md and case-insensitively "Foo" in alpha.md/gamma.md
+        // but NOT "Foobar" (word boundary).
+        #expect(names == ["alpha.md", "delta.md"])
+    }
+
+    @Test("matches are case-insensitive")
+    func caseInsensitive() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ta-rg-ci-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        try "A `LSUIElement` line and #MacOS tag.".write(
+            to: root.appendingPathComponent("note.md"), atomically: true, encoding: .utf8)
+        let runner = RipgrepRunner()
+        let phraseRefs = try runner.run(predicates: [.phrase("lsuielement")], archiveDirectory: root)
+        #expect(Set(phraseRefs.map(\.filename)) == ["note.md"])
+        let wordRefs = try runner.run(predicates: [.word("LSUIELEMENT")], archiveDirectory: root)
+        #expect(Set(wordRefs.map(\.filename)) == ["note.md"])
+        let tagRefs = try runner.run(predicates: [.tag("macos")], archiveDirectory: root)
+        #expect(Set(tagRefs.map(\.filename)) == ["note.md"])
     }
 
     @Test("matches inside .txt files")
