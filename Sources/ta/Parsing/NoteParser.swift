@@ -52,9 +52,9 @@ public enum NoteParser {
     private static func titleFromFilename(_ filename: String, prefix: String) -> String {
         var stem = filename
         if stem.hasSuffix(".md") { stem.removeLast(3) }
+        else if stem.hasSuffix(".txt") { stem.removeLast(4) }
         guard stem.hasPrefix(prefix) else { return stem }
         stem.removeFirst(prefix.count)
-        // Drop one leading separator character (space, dash, underscore).
         if let first = stem.first, first == " " || first == "-" || first == "_" {
             stem.removeFirst()
         }

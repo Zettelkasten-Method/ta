@@ -57,4 +57,20 @@ struct NoteIndexTests {
         // 12 of 13 fixture files have 12-digit prefixes; Unknown Id Note.md is excluded.
         #expect(index.count == 12)
     }
+
+    @Test("indexes .txt files alongside .md")
+    func txtFilesIndexed() throws {
+        let tmp = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ta-idx-txt-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: tmp, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        try "".write(to: tmp.appendingPathComponent("111111111111 md note.md"), atomically: true, encoding: .utf8)
+        try "".write(to: tmp.appendingPathComponent("222222222222 txt note.txt"), atomically: true, encoding: .utf8)
+        try "".write(to: tmp.appendingPathComponent("333333333333 other.rtf"), atomically: true, encoding: .utf8)
+        let index = try NoteIndex(archiveDirectory: tmp)
+        #expect(index.count == 2)
+        #expect(index.resolve(wikilinkText: "111111111111")?.filename == "111111111111 md note.md")
+        #expect(index.resolve(wikilinkText: "222222222222")?.filename == "222222222222 txt note.txt")
+        #expect(index.resolve(wikilinkText: "333333333333") == nil)
+    }
 }

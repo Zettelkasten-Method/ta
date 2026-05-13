@@ -17,7 +17,7 @@ public struct NoteIndex: Sendable {
             options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
         )
         var map: [String: [NoteRef]] = [:]
-        for url in contents where url.pathExtension == "md" {
+        for url in contents where url.pathExtension == "md" || url.pathExtension == "txt" {
             let filename = url.lastPathComponent
             guard let prefix = Self.extractTimestampPrefix(filename) else { continue }
             map[prefix, default: []].append(NoteRef(filename: filename))

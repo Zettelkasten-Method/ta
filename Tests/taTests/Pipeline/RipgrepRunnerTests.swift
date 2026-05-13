@@ -72,6 +72,23 @@ struct RipgrepRunnerTests {
         #expect(names == ["delta.md"])
     }
 
+    @Test("matches inside .txt files")
+    func txtFiles() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ta-rg-txt-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        try "phrase target inside text file".write(
+            to: root.appendingPathComponent("note.txt"), atomically: true, encoding: .utf8)
+        try "phrase target inside markdown file".write(
+            to: root.appendingPathComponent("note.md"), atomically: true, encoding: .utf8)
+        let runner = RipgrepRunner()
+        let phraseRefs = try runner.run(predicates: [.phrase("phrase target")], archiveDirectory: root)
+        #expect(Set(phraseRefs.map(\.filename)) == ["note.md", "note.txt"])
+        let wordRefs = try runner.run(predicates: [.word("target")], archiveDirectory: root)
+        #expect(Set(wordRefs.map(\.filename)) == ["note.md", "note.txt"])
+    }
+
     @Test("zero results are fine")
     func zero() throws {
         let root = try makeTempArchive()
