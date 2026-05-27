@@ -26,8 +26,8 @@ public struct NoteIndex: Sendable {
         var map: [String: [NoteRef]] = [:]
         var stems: [String: String] = [:]
         let extensions = Set(Self.supportedExtensions)
-        var totalFiles = 0
-        var acceptedByExt = 0
+        var matchedExt = 0
+        var indexed = 0
         var skippedNoID = 0
         for url in contents {
             let filename = url.lastPathComponent
@@ -35,7 +35,7 @@ public struct NoteIndex: Sendable {
                 logger.log("skip (extension): \(filename)")
                 continue
             }
-            totalFiles += 1
+            matchedExt += 1
             let stem = (filename as NSString).deletingPathExtension
             let ids = idPattern.extractIDs(from: stem)
             if ids.isEmpty {
@@ -43,13 +43,13 @@ public struct NoteIndex: Sendable {
                 logger.log("skip (no ID match): \(filename)")
                 continue
             }
-            acceptedByExt += 1
+            indexed += 1
             stems[filename] = stem
             for id in ids {
                 map[id, default: []].append(NoteRef(filename: filename))
             }
         }
-        logger.log("index: \(totalFiles) files scanned, \(acceptedByExt) by extension, \(skippedNoID) no ID, \(map.count) unique IDs")
+        logger.log("index: \(matchedExt) files scanned, \(indexed) indexed, \(skippedNoID) skipped (no ID), \(map.count) unique IDs")
         self.byTimestampID = map
         self.sortedTimestampIDs = map.keys.sorted()
         self.stemsByFilename = stems
@@ -107,11 +107,5 @@ public struct NoteIndex: Sendable {
             }
         }
         return unique
-    }
-
-    public static func extractTimestampPrefix(_ filename: String) -> String? {
-        guard filename.count >= 12 else { return nil }
-        let first12 = filename.prefix(12)
-        return first12.allSatisfy(\.isWholeNumber) ? String(first12) : nil
     }
 }
