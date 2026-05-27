@@ -25,4 +25,22 @@ struct IDPatternTests {
     func invalidRegex() {
         #expect(IDPattern(source: "[invalid") == nil)
     }
+
+    @Test("extracts 12-digit suffix ID")
+    func suffixExtraction() {
+        let ids = IDPattern.default.extractIDs(from: "Thinking About Thinking 202506252102")
+        #expect(ids == ["202506252102"])
+    }
+
+    @Test("extracts ID after separator")
+    func separatorExtraction() {
+        let ids = IDPattern.default.extractIDs(from: "My Note - 202506252102")
+        #expect(ids == ["202506252102"])
+    }
+
+    @Test("extracts multiple IDs left to right")
+    func multiMatch() {
+        let ids = IDPattern.default.extractIDs(from: "202501011200 cross-ref 202501011201")
+        #expect(ids == ["202501011200", "202501011201"])
+    }
 }
