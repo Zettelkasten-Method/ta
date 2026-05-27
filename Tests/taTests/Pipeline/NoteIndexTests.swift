@@ -54,14 +54,14 @@ struct NoteIndexTests {
     @Test("count of indexed notes matches fixture")
     func count() throws {
         let index = try NoteIndex(archiveDirectory: fixtureURL())
-        // 12 of 13 fixture files have 12-digit prefixes; Unknown Id Note.md is excluded.
-        #expect(index.count == 12)
+        // 12 prefix-timestamped + 2 suffix-timestamped = 14; Unknown Id Note.md is excluded.
+        #expect(index.count == 14)
     }
 
     @Test("explicit default IDPattern produces same count as implicit")
     func explicitDefaultPattern() throws {
         let index = try NoteIndex(archiveDirectory: fixtureURL(), idPattern: .default)
-        #expect(index.count == 12)
+        #expect(index.count == 14)
         #expect(index.resolve(wikilinkText: "202503091430")?.filename == "202503091430 Mental Models.md")
     }
 
