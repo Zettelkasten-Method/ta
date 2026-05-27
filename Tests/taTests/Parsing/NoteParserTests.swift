@@ -57,4 +57,38 @@ struct NoteParserTests {
         #expect(note.outgoingLinks.isEmpty)
         #expect(note.unresolvedLinkText == ["999999999999"])
     }
+
+    @Test("parses suffix-timestamped note")
+    func suffixTimestamp() throws {
+        let tmp = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ta-np-suffix-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: tmp, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        let content = "# Cognitive Distancing\n\nThinking about thinking.\n\n#metacognition"
+        try content.write(
+            to: tmp.appendingPathComponent("Thinking About Thinking - Cognitive Distancing 202506252102.md"),
+            atomically: true, encoding: .utf8)
+        let index = try NoteIndex(archiveDirectory: tmp)
+        let url = tmp.appendingPathComponent("Thinking About Thinking - Cognitive Distancing 202506252102.md")
+        let note = try NoteParser.parse(fileURL: url, index: index)
+        #expect(note.timestampID == "202506252102")
+        #expect(note.title == "Thinking About Thinking - Cognitive Distancing")
+        #expect(note.tags == ["metacognition"])
+    }
+
+    @Test("prefix-timestamped title extraction unchanged")
+    func prefixTitleUnchanged() throws {
+        let tmp = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ta-np-prefix-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: tmp, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        try "# Mental Models\n\n#learning".write(
+            to: tmp.appendingPathComponent("202503091430 Mental Models.md"),
+            atomically: true, encoding: .utf8)
+        let index = try NoteIndex(archiveDirectory: tmp)
+        let url = tmp.appendingPathComponent("202503091430 Mental Models.md")
+        let note = try NoteParser.parse(fileURL: url, index: index)
+        #expect(note.timestampID == "202503091430")
+        #expect(note.title == "Mental Models")
+    }
 }

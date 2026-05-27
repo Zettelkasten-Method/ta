@@ -14,11 +14,13 @@ public enum NoteParser {
             throw Error.cannotReadFile(fileURL)
         }
         let filename = fileURL.lastPathComponent
-        guard let prefix = NoteIndex.extractTimestampPrefix(filename) else {
+        let stem = (filename as NSString).deletingPathExtension
+        let ids = index.idPattern.extractIDs(from: stem)
+        guard let primaryID = ids.first else {
             throw Error.missingTimestampPrefix(filename)
         }
 
-        let title = Self.titleFromFilename(filename, prefix: prefix)
+        let title = Self.titleFromFilename(stem, id: primaryID)
 
         let document = Document(parsing: source)
         let nonCodeText = NonCodeTextExtractor.extract(from: document)
@@ -41,7 +43,7 @@ public enum NoteParser {
         return ParsedNote(
             ref: NoteRef(filename: filename),
             title: title,
-            timestampID: prefix,
+            timestampID: primaryID,
             outgoingLinks: resolved,
             unresolvedLinkText: unresolved,
             tags: tags,
@@ -50,13 +52,18 @@ public enum NoteParser {
         )
     }
 
-    private static func titleFromFilename(_ filename: String, prefix: String) -> String {
-        var stem = (filename as NSString).deletingPathExtension
-        guard stem.hasPrefix(prefix) else { return stem }
-        stem.removeFirst(prefix.count)
-        if let first = stem.first, first == " " || first == "-" || first == "_" {
-            stem.removeFirst()
+    private static func titleFromFilename(_ stem: String, id: String) -> String {
+        var result = stem
+        if let range = result.range(of: id) {
+            result.removeSubrange(range)
         }
-        return stem
+        let separators: CharacterSet = .init(charactersIn: " -_")
+        while let first = result.unicodeScalars.first, separators.contains(first) {
+            result.removeFirst()
+        }
+        while let last = result.unicodeScalars.last, separators.contains(last) {
+            result.removeLast()
+        }
+        return result.isEmpty ? stem : result
     }
 }
