@@ -77,6 +77,34 @@ struct NoteIndexTests {
         #expect(index.resolve(wikilinkText: "202506252102")?.filename == "Thinking About Thinking 202506252102.md")
     }
 
+    @Test("resolves by filename substring")
+    func filenameSubstring() throws {
+        let index = try NoteIndex(archiveDirectory: fixtureURL())
+        let ref = index.resolve(wikilinkText: "Mental Models")
+        #expect(ref?.filename == "202503091430 Mental Models.md")
+    }
+
+    @Test("filename substring resolution is case-insensitive")
+    func filenameCaseInsensitive() throws {
+        let index = try NoteIndex(archiveDirectory: fixtureURL())
+        let ref = index.resolve(wikilinkText: "mental models")
+        #expect(ref?.filename == "202503091430 Mental Models.md")
+    }
+
+    @Test("ambiguous filename substring returns nil")
+    func ambiguousSubstring() throws {
+        let index = try NoteIndex(archiveDirectory: fixtureURL())
+        let ref = index.resolve(wikilinkText: "Ambiguous Prefix")
+        #expect(ref == nil)
+    }
+
+    @Test("exact ID match takes priority over filename substring")
+    func idPriorityOverSubstring() throws {
+        let index = try NoteIndex(archiveDirectory: fixtureURL())
+        let ref = index.resolve(wikilinkText: "202503091430")
+        #expect(ref?.filename == "202503091430 Mental Models.md")
+    }
+
     @Test("indexes .txt files alongside .md")
     func txtFilesIndexed() throws {
         let tmp = FileManager.default.temporaryDirectory

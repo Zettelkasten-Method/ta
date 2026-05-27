@@ -41,24 +41,47 @@ public struct NoteIndex: Sendable {
 
     public func resolve(wikilinkText: String) -> NoteRef? {
         let key = wikilinkText.trimmingCharacters(in: .whitespaces)
+        guard !key.isEmpty else { return nil }
+
         if let candidates = byTimestampID[key], candidates.count == 1 {
             return candidates[0]
         }
-        if key.count >= 1 {
-            var unique: NoteRef?
-            for id in sortedTimestampIDs where id.hasPrefix(key) {
-                let refs = byTimestampID[id] ?? []
-                for r in refs {
-                    if unique == nil {
-                        unique = r
-                    } else if unique != r {
-                        return nil
-                    }
+
+        if let match = resolveByFilenameSubstring(key) {
+            return match
+        }
+
+        return resolveByIDPrefix(key)
+    }
+
+    private func resolveByFilenameSubstring(_ key: String) -> NoteRef? {
+        var unique: NoteRef?
+        for (filename, stem) in stemsByFilename {
+            if stem.range(of: key, options: .caseInsensitive) != nil {
+                let ref = NoteRef(filename: filename)
+                if unique == nil {
+                    unique = ref
+                } else if unique != ref {
+                    return nil
                 }
             }
-            return unique
         }
-        return nil
+        return unique
+    }
+
+    private func resolveByIDPrefix(_ key: String) -> NoteRef? {
+        var unique: NoteRef?
+        for id in sortedTimestampIDs where id.hasPrefix(key) {
+            let refs = byTimestampID[id] ?? []
+            for r in refs {
+                if unique == nil {
+                    unique = r
+                } else if unique != r {
+                    return nil
+                }
+            }
+        }
+        return unique
     }
 
     public static func extractTimestampPrefix(_ filename: String) -> String? {
