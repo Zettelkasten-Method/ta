@@ -42,18 +42,46 @@ public struct ArchiveResolver {
     }
 
     public func resolve() throws -> URL {
-        if let value = flagValue, !value.isEmpty {
-            return try validated(path: value)
-        }
-        if let value = environment["TA_DIR"], !value.isEmpty {
-            return try validated(path: value)
-        }
+        try resolveConfig().archiveDirectory
+    }
+
+    public func resolveConfig() throws -> ResolvedConfig {
         let configPath = Self.defaultConfigPath()
-        if let contents = configFileReader(configPath),
-           let path = Self.parseArchiveKey(from: contents) {
-            return try validated(path: path)
+        let configContents = configFileReader(configPath)
+        let parsed = configContents.flatMap { Self.parseConfig(from: $0) }
+
+        let archiveDirectory: URL
+        let archiveSource: String
+
+        if let value = flagValue, !value.isEmpty {
+            archiveDirectory = try validated(path: value)
+            archiveSource = "flag"
+        } else if let value = environment["TA_DIR"], !value.isEmpty {
+            archiveDirectory = try validated(path: value)
+            archiveSource = "env"
+        } else if let path = parsed?.archive {
+            archiveDirectory = try validated(path: path)
+            archiveSource = "config"
+        } else {
+            throw Error.notConfigured(configPath: configPath.path)
         }
-        throw Error.notConfigured(configPath: configPath.path)
+
+        let idPattern: IDPattern
+        let idPatternSource: String
+        if let patternSource = parsed?.idPattern, let pattern = IDPattern(source: patternSource) {
+            idPattern = pattern
+            idPatternSource = "config"
+        } else {
+            idPattern = .default
+            idPatternSource = "default"
+        }
+
+        return ResolvedConfig(
+            archiveDirectory: archiveDirectory,
+            archiveSource: archiveSource,
+            idPattern: idPattern,
+            idPatternSource: idPatternSource
+        )
     }
 
     private func validated(path raw: String) throws -> URL {
@@ -75,8 +103,8 @@ public struct ArchiveResolver {
         return String(data: data, encoding: .utf8)
     }
 
-    private static func parseArchiveKey(from yaml: String) -> String? {
+    private static func parseConfig(from yaml: String) -> (archive: String?, idPattern: String?)? {
         guard let parsed = try? Yams.load(yaml: yaml) as? [String: Any] else { return nil }
-        return parsed["archive"] as? String
+        return (parsed["archive"] as? String, parsed["id_pattern"] as? String)
     }
 }
