@@ -6,6 +6,7 @@ public struct NoteIndex: Sendable {
 
     public let archiveDirectory: URL
     public let idPattern: IDPattern
+    public let logger: Logger
     private let byTimestampID: [String: [NoteRef]]
     private let sortedTimestampIDs: [String]
     private let stemsByFilename: [String: String]
@@ -15,6 +16,7 @@ public struct NoteIndex: Sendable {
     public init(archiveDirectory: URL, idPattern: IDPattern = .default, logger: Logger = .quiet) throws {
         self.archiveDirectory = archiveDirectory
         self.idPattern = idPattern
+        self.logger = logger
         let fm = FileManager.default
         let contents = try fm.contentsOfDirectory(
             at: archiveDirectory,
@@ -58,14 +60,23 @@ public struct NoteIndex: Sendable {
         guard !key.isEmpty else { return nil }
 
         if let candidates = byTimestampID[key], candidates.count == 1 {
-            return candidates[0]
+            let ref = candidates[0]
+            logger.log("resolve [[\(key)]]: exact ID -> \(ref.filename)")
+            return ref
         }
 
         if let match = resolveByFilenameSubstring(key) {
+            logger.log("resolve [[\(key)]]: filename match -> \(match.filename)")
             return match
         }
 
-        return resolveByIDPrefix(key)
+        if let match = resolveByIDPrefix(key) {
+            logger.log("resolve [[\(key)]]: prefix match -> \(match.filename)")
+            return match
+        }
+
+        logger.log("resolve [[\(key)]]: unresolved")
+        return nil
     }
 
     private func resolveByFilenameSubstring(_ key: String) -> NoteRef? {

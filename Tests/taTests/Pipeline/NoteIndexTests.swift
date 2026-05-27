@@ -114,6 +114,16 @@ struct NoteIndexTests {
         #expect(messages.contains { $0.contains("index:") })
     }
 
+    @Test("verbose logger captures resolution method")
+    func verboseResolution() throws {
+        var messages: [String] = []
+        let logger = Logger(enabled: true) { messages.append($0) }
+        let index = try NoteIndex(archiveDirectory: fixtureURL(), logger: logger)
+        messages.removeAll()
+        _ = index.resolve(wikilinkText: "202503091430")
+        #expect(messages.contains { $0.contains("resolve") })
+    }
+
     @Test("indexes .txt files alongside .md")
     func txtFilesIndexed() throws {
         let tmp = FileManager.default.temporaryDirectory
