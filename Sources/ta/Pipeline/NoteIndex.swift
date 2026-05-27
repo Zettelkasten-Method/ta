@@ -24,16 +24,30 @@ public struct NoteIndex: Sendable {
         var map: [String: [NoteRef]] = [:]
         var stems: [String: String] = [:]
         let extensions = Set(Self.supportedExtensions)
-        for url in contents where extensions.contains(url.pathExtension) {
+        var totalFiles = 0
+        var acceptedByExt = 0
+        var skippedNoID = 0
+        for url in contents {
             let filename = url.lastPathComponent
+            guard extensions.contains(url.pathExtension) else {
+                logger.log("skip (extension): \(filename)")
+                continue
+            }
+            totalFiles += 1
             let stem = (filename as NSString).deletingPathExtension
             let ids = idPattern.extractIDs(from: stem)
-            if ids.isEmpty { continue }
+            if ids.isEmpty {
+                skippedNoID += 1
+                logger.log("skip (no ID match): \(filename)")
+                continue
+            }
+            acceptedByExt += 1
             stems[filename] = stem
             for id in ids {
                 map[id, default: []].append(NoteRef(filename: filename))
             }
         }
+        logger.log("index: \(totalFiles) files scanned, \(acceptedByExt) by extension, \(skippedNoID) no ID, \(map.count) unique IDs")
         self.byTimestampID = map
         self.sortedTimestampIDs = map.keys.sorted()
         self.stemsByFilename = stems

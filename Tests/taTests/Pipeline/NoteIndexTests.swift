@@ -105,6 +105,15 @@ struct NoteIndexTests {
         #expect(ref?.filename == "202503091430 Mental Models.md")
     }
 
+    @Test("verbose logger captures file scan summary")
+    func verboseFileScan() throws {
+        var messages: [String] = []
+        let logger = Logger(enabled: true) { messages.append($0) }
+        _ = try NoteIndex(archiveDirectory: fixtureURL(), logger: logger)
+        #expect(messages.contains { $0.contains("skip") && $0.contains("Unknown Id Note.md") })
+        #expect(messages.contains { $0.contains("index:") })
+    }
+
     @Test("indexes .txt files alongside .md")
     func txtFilesIndexed() throws {
         let tmp = FileManager.default.temporaryDirectory
