@@ -43,4 +43,17 @@ struct IDPatternTests {
         let ids = IDPattern.default.extractIDs(from: "202501011200 cross-ref 202501011201")
         #expect(ids == ["202501011200", "202501011201"])
     }
+
+    @Test("custom 14-digit pattern")
+    func fourteenDigit() {
+        let pattern = IDPattern(source: "\\d{14}")!
+        #expect(pattern.extractIDs(from: "20250101120000 Note") == ["20250101120000"])
+        #expect(pattern.extractIDs(from: "202503091430 Too Short") == [])
+    }
+
+    @Test("alphanumeric custom pattern")
+    func alphanumeric() {
+        let pattern = IDPattern(source: "[A-Z]{3}-\\d+")!
+        #expect(pattern.extractIDs(from: "ABC-42 My Note") == ["ABC-42"])
+    }
 }
