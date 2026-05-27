@@ -32,7 +32,7 @@ public enum SearchPipeline {
         let index = try NoteIndex(archiveDirectory: config.archiveDirectory, idPattern: config.idPattern, logger: logger)
         let filter = StructuralFilter(index: index, archiveDirectory: config.archiveDirectory, logger: logger)
         let directHits = try filter.verify(candidates: candidates, predicates: predicates)
-        let expander = GraphExpander(index: index, archiveDirectory: config.archiveDirectory)
+        let expander = GraphExpander(index: index, archiveDirectory: config.archiveDirectory, logger: logger)
         let all = try expander.expand(directHits: directHits, depth: depth)
         return SearchYAMLEmitter.emit(all)
     }
