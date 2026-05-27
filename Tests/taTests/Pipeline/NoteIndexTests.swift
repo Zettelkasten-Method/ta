@@ -65,6 +65,18 @@ struct NoteIndexTests {
         #expect(index.resolve(wikilinkText: "202503091430")?.filename == "202503091430 Mental Models.md")
     }
 
+    @Test("indexes suffix-timestamped filenames")
+    func suffixTimestamp() throws {
+        let tmp = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ta-idx-suffix-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: tmp, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        try "".write(to: tmp.appendingPathComponent("Thinking About Thinking 202506252102.md"), atomically: true, encoding: .utf8)
+        let index = try NoteIndex(archiveDirectory: tmp)
+        #expect(index.count == 1)
+        #expect(index.resolve(wikilinkText: "202506252102")?.filename == "Thinking About Thinking 202506252102.md")
+    }
+
     @Test("indexes .txt files alongside .md")
     func txtFilesIndexed() throws {
         let tmp = FileManager.default.temporaryDirectory
