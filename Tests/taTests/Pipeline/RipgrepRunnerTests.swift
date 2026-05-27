@@ -108,6 +108,25 @@ struct RipgrepRunnerTests {
         #expect(Set(wordRefs.map(\.filename)) == ["note.md", "note.txt"])
     }
 
+    @Test("verbose logger captures command and match count")
+    func verboseLogging() throws {
+        let tmp = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ta-rg-verbose-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: tmp, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        try "Hello world #test".write(
+            to: tmp.appendingPathComponent("111111111111 note.md"),
+            atomically: true, encoding: .utf8)
+        var messages: [String] = []
+        let logger = Logger(enabled: true) { messages.append($0) }
+        _ = try RipgrepRunner().run(
+            predicates: [.tag("test")],
+            archiveDirectory: tmp,
+            logger: logger
+        )
+        #expect(messages.contains { $0.contains("predicate") || $0.contains("match") })
+    }
+
     @Test("zero results are fine")
     func zero() throws {
         let root = try makeTempArchive()

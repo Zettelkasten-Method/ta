@@ -32,12 +32,14 @@ public struct RipgrepRunner {
 
     public init() {}
 
-    public func run(predicates: [Predicate], archiveDirectory: URL) throws -> [NoteRef] {
+    public func run(predicates: [Predicate], archiveDirectory: URL, logger: Logger = .quiet) throws -> [NoteRef] {
         guard !predicates.isEmpty else { return [] }
         let useRipgrep = Self.hasTool("rg")
         var intersection: Set<String>? = nil
         for predicate in predicates {
+            logger.log("search: \(predicate) ...")
             let files = try runOne(predicate: predicate, in: archiveDirectory, useRipgrep: useRipgrep)
+            logger.log("search: \(files.count) matches for \(predicate)")
             if var acc = intersection {
                 acc.formIntersection(files)
                 intersection = acc
@@ -47,6 +49,7 @@ public struct RipgrepRunner {
             if intersection?.isEmpty == true { break }
         }
         let names = (intersection ?? []).sorted()
+        logger.log("search: \(names.count) candidates after intersection")
         return names.map { NoteRef(filename: $0) }
     }
 
@@ -89,7 +92,6 @@ public struct RipgrepRunner {
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         process.waitUntilExit()
 
-        // rg/grep exit code 1 means "no matches", which is not an error.
         if process.terminationStatus > 1 {
             throw Error.toolFailed(args.joined(separator: " "), process.terminationStatus)
         }
@@ -97,7 +99,6 @@ public struct RipgrepRunner {
         var set = Set<String>()
         for line in output.split(separator: "\n", omittingEmptySubsequences: true) {
             let path = String(line)
-            // rg/grep return absolute or archive-relative paths. Reduce to filename.
             let url = URL(fileURLWithPath: path)
             set.insert(url.lastPathComponent)
         }
@@ -116,6 +117,16 @@ public struct RipgrepRunner {
             return process.terminationStatus == 0
         } catch {
             return false
+        }
+    }
+}
+
+extension RipgrepRunner.Predicate: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .tag(let t): return "tag(\(t))"
+        case .phrase(let p): return "phrase(\(p))"
+        case .word(let w): return "word(\(w))"
         }
     }
 }

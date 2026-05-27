@@ -28,10 +28,7 @@ public enum SearchPipeline {
 
         logger.log("archive: \(config.archiveDirectory.path) (source: \(config.archiveSource))")
         logger.log("id_pattern: /\(config.idPattern.source)/ (source: \(config.idPatternSource))")
-        let candidates = try RipgrepRunner().run(
-            predicates: predicates,
-            archiveDirectory: config.archiveDirectory
-        )
+        let candidates = try RipgrepRunner().run(predicates: predicates, archiveDirectory: config.archiveDirectory, logger: logger)
         let index = try NoteIndex(archiveDirectory: config.archiveDirectory, idPattern: config.idPattern, logger: logger)
         let filter = StructuralFilter(index: index, archiveDirectory: config.archiveDirectory)
         let directHits = try filter.verify(candidates: candidates, predicates: predicates)
