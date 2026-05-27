@@ -8,6 +8,7 @@ public struct NoteIndex: Sendable {
     public let idPattern: IDPattern
     private let byTimestampID: [String: [NoteRef]]
     private let sortedTimestampIDs: [String]
+    private let stemsByFilename: [String: String]
 
     public var count: Int { byTimestampID.values.reduce(0) { $0 + $1.count } }
 
@@ -21,18 +22,21 @@ public struct NoteIndex: Sendable {
             options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
         )
         var map: [String: [NoteRef]] = [:]
+        var stems: [String: String] = [:]
         let extensions = Set(Self.supportedExtensions)
         for url in contents where extensions.contains(url.pathExtension) {
             let filename = url.lastPathComponent
             let stem = (filename as NSString).deletingPathExtension
             let ids = idPattern.extractIDs(from: stem)
             if ids.isEmpty { continue }
+            stems[filename] = stem
             for id in ids {
                 map[id, default: []].append(NoteRef(filename: filename))
             }
         }
         self.byTimestampID = map
         self.sortedTimestampIDs = map.keys.sorted()
+        self.stemsByFilename = stems
     }
 
     public func resolve(wikilinkText: String) -> NoteRef? {
