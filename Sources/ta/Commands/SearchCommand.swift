@@ -26,7 +26,8 @@ public enum SearchPipeline {
     ) throws -> String {
         guard !predicates.isEmpty else { throw Error.noPredicates }
 
-        logger.log("archive: \(config.archiveDirectory.path) (\(config.archiveSource))")
+        logger.log("archive: \(config.archiveDirectory.path) (source: \(config.archiveSource))")
+        logger.log("id_pattern: /\(config.idPattern.source)/ (source: \(config.idPatternSource))")
         let candidates = try RipgrepRunner().run(
             predicates: predicates,
             archiveDirectory: config.archiveDirectory

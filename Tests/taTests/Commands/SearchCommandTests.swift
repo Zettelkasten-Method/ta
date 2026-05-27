@@ -57,4 +57,19 @@ struct SearchCommandTests {
         #expect(yaml.contains("Mental Models"))
         #expect(!messages.isEmpty)
     }
+
+    @Test("verbose logger captures config echo")
+    func verboseConfigEcho() throws {
+        var messages: [String] = []
+        let logger = Logger(enabled: true) { messages.append($0) }
+        let config = makeFixtureConfig(fixtureURL())
+        _ = try SearchPipeline.run(
+            config: config,
+            predicates: [.tag("learning")],
+            depth: 0,
+            logger: logger
+        )
+        #expect(messages.contains { $0.contains("archive:") })
+        #expect(messages.contains { $0.contains("id_pattern:") })
+    }
 }
