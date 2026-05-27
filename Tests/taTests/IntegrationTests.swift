@@ -59,6 +59,18 @@ struct IntegrationTests {
         #expect(yaml.contains("201906120938 Launch helper.txt"))
     }
 
+    @Test("search finds suffix-timestamped notes and follows their links")
+    func suffixTimestampSearch() throws {
+        let yaml = try SearchPipeline.run(
+            archiveDirectory: fixtureURL(),
+            predicates: [.tag("metacognition")],
+            depth: 1
+        )
+        #expect(yaml.contains("Thinking About Thinking - Cognitive Distancing 202506252102.md"))
+        #expect(yaml.contains("depth: 0"))
+        #expect(yaml.contains("202503091430 Mental Models.md"))
+    }
+
     @Test("graph expansion respects depth cap")
     func depthClamp() throws {
         let yaml = try SearchPipeline.run(
