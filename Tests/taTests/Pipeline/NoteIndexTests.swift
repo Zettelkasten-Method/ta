@@ -58,6 +58,13 @@ struct NoteIndexTests {
         #expect(index.count == 12)
     }
 
+    @Test("explicit default IDPattern produces same count as implicit")
+    func explicitDefaultPattern() throws {
+        let index = try NoteIndex(archiveDirectory: fixtureURL(), idPattern: .default)
+        #expect(index.count == 12)
+        #expect(index.resolve(wikilinkText: "202503091430")?.filename == "202503091430 Mental Models.md")
+    }
+
     @Test("indexes .txt files alongside .md")
     func txtFilesIndexed() throws {
         let tmp = FileManager.default.temporaryDirectory

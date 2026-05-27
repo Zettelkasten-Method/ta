@@ -5,13 +5,15 @@ public struct NoteIndex: Sendable {
     public static let supportedExtensions: [String] = ["md", "txt"]
 
     public let archiveDirectory: URL
+    public let idPattern: IDPattern
     private let byTimestampID: [String: [NoteRef]]
     private let sortedTimestampIDs: [String]
 
     public var count: Int { byTimestampID.values.reduce(0) { $0 + $1.count } }
 
-    public init(archiveDirectory: URL) throws {
+    public init(archiveDirectory: URL, idPattern: IDPattern = .default, logger: Logger = .quiet) throws {
         self.archiveDirectory = archiveDirectory
+        self.idPattern = idPattern
         let fm = FileManager.default
         let contents = try fm.contentsOfDirectory(
             at: archiveDirectory,
@@ -22,8 +24,12 @@ public struct NoteIndex: Sendable {
         let extensions = Set(Self.supportedExtensions)
         for url in contents where extensions.contains(url.pathExtension) {
             let filename = url.lastPathComponent
-            guard let prefix = Self.extractTimestampPrefix(filename) else { continue }
-            map[prefix, default: []].append(NoteRef(filename: filename))
+            let stem = (filename as NSString).deletingPathExtension
+            let ids = idPattern.extractIDs(from: stem)
+            if ids.isEmpty { continue }
+            for id in ids {
+                map[id, default: []].append(NoteRef(filename: filename))
+            }
         }
         self.byTimestampID = map
         self.sortedTimestampIDs = map.keys.sorted()
