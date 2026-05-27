@@ -11,7 +11,7 @@ struct TagCommandTests {
     @Test("tag command behaves like search --tag")
     func tagEqualsSearch() throws {
         let viaTag = try SearchPipeline.run(
-            archiveDirectory: fixtureURL(),
+            config: makeFixtureConfig(fixtureURL()),
             predicates: [.tag("thinking")],
             depth: 0
         )

@@ -11,7 +11,7 @@ struct IntegrationTests {
     @Test("search by tag, pick a ref, show it")
     func searchThenShow() throws {
         let yaml = try SearchPipeline.run(
-            archiveDirectory: fixtureURL(),
+            config: makeFixtureConfig(fixtureURL()),
             predicates: [.tag("thinking")],
             depth: 2
         )
@@ -19,7 +19,7 @@ struct IntegrationTests {
         #expect(yaml.contains("depth: 1") || yaml.contains("depth: 2"))
 
         let shown = try ShowPipeline.run(
-            archiveDirectory: fixtureURL(),
+            config: makeFixtureConfig(fixtureURL()),
             refs: [NoteRef(filename: "202503091430 Mental Models.md")]
         )
         #expect(shown.anyResolved)
@@ -30,7 +30,7 @@ struct IntegrationTests {
     @Test("structural filter correctly rejects code-only tag")
     func codeOnlyRejection() throws {
         let yaml = try SearchPipeline.run(
-            archiveDirectory: fixtureURL(),
+            config: makeFixtureConfig(fixtureURL()),
             predicates: [.tag("fake-tag")],
             depth: 0
         )
@@ -51,7 +51,7 @@ struct IntegrationTests {
             atomically: true, encoding: .utf8)
 
         let yaml = try SearchPipeline.run(
-            archiveDirectory: tmp,
+            config: makeFixtureConfig(tmp),
             predicates: [.word("LSUIElement")],
             depth: 0
         )
@@ -62,7 +62,7 @@ struct IntegrationTests {
     @Test("search finds suffix-timestamped notes and follows their links")
     func suffixTimestampSearch() throws {
         let yaml = try SearchPipeline.run(
-            archiveDirectory: fixtureURL(),
+            config: makeFixtureConfig(fixtureURL()),
             predicates: [.tag("metacognition")],
             depth: 1
         )
@@ -74,7 +74,7 @@ struct IntegrationTests {
     @Test("graph expansion respects depth cap")
     func depthClamp() throws {
         let yaml = try SearchPipeline.run(
-            archiveDirectory: fixtureURL(),
+            config: makeFixtureConfig(fixtureURL()),
             predicates: [.tag("learning")],
             depth: 999
         )

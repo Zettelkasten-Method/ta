@@ -1,4 +1,3 @@
-// Tests/taTests/Commands/ShowCommandTests.swift
 import Testing
 import Foundation
 @testable import ta
@@ -12,7 +11,7 @@ struct ShowCommandTests {
     @Test("single ref emits frontmatter and body")
     func singleRef() throws {
         let result = try ShowPipeline.run(
-            archiveDirectory: fixtureURL(),
+            config: makeFixtureConfig(fixtureURL()),
             refs: [NoteRef(filename: "202503091430 Mental Models.md")]
         )
         #expect(result.output.contains("# Mental Models"))
@@ -23,7 +22,7 @@ struct ShowCommandTests {
     @Test("unknown ref emits not-found, anyResolved=false")
     func unknown() throws {
         let result = try ShowPipeline.run(
-            archiveDirectory: fixtureURL(),
+            config: makeFixtureConfig(fixtureURL()),
             refs: [NoteRef(filename: "000000000000 Unknown.md")]
         )
         #expect(result.output.contains("error: not-found"))
@@ -33,7 +32,7 @@ struct ShowCommandTests {
     @Test("mixed refs resolve partially, anyResolved=true")
     func mixed() throws {
         let result = try ShowPipeline.run(
-            archiveDirectory: fixtureURL(),
+            config: makeFixtureConfig(fixtureURL()),
             refs: [
                 NoteRef(filename: "000000000000 Unknown.md"),
                 NoteRef(filename: "202503091430 Mental Models.md"),

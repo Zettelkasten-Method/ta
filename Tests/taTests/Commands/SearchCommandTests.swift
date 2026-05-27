@@ -11,7 +11,7 @@ struct SearchCommandTests {
     @Test("search by tag returns direct hits with snippet")
     func searchByTag() throws {
         let yaml = try SearchPipeline.run(
-            archiveDirectory: fixtureURL(),
+            config: makeFixtureConfig(fixtureURL()),
             predicates: [.tag("learning")],
             depth: 0
         )
@@ -23,7 +23,7 @@ struct SearchCommandTests {
     @Test("search with depth 1 pulls neighbors without snippet")
     func searchDepthOne() throws {
         let yaml = try SearchPipeline.run(
-            archiveDirectory: fixtureURL(),
+            config: makeFixtureConfig(fixtureURL()),
             predicates: [.tag("learning")],
             depth: 1
         )
@@ -36,10 +36,25 @@ struct SearchCommandTests {
     func noPredicates() {
         #expect(throws: SearchPipeline.Error.self) {
             _ = try SearchPipeline.run(
-                archiveDirectory: fixtureURL(),
+                config: makeFixtureConfig(fixtureURL()),
                 predicates: [],
                 depth: 0
             )
         }
+    }
+
+    @Test("pipeline accepts config and logger")
+    func pipelineWithConfigAndLogger() throws {
+        var messages: [String] = []
+        let logger = Logger(enabled: true) { messages.append($0) }
+        let config = makeFixtureConfig(fixtureURL())
+        let yaml = try SearchPipeline.run(
+            config: config,
+            predicates: [.tag("learning")],
+            depth: 0,
+            logger: logger
+        )
+        #expect(yaml.contains("Mental Models"))
+        #expect(!messages.isEmpty)
     }
 }

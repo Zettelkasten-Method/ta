@@ -3,9 +3,13 @@ import Foundation
 import ArgumentParser
 
 public enum ShowPipeline {
-    public static func run(archiveDirectory: URL, refs: [NoteRef]) throws -> ShowEmitter.EmitResult {
-        let index = try NoteIndex(archiveDirectory: archiveDirectory)
-        let emitter = ShowEmitter(index: index, archiveDirectory: archiveDirectory)
+    public static func run(
+        config: ResolvedConfig,
+        refs: [NoteRef],
+        logger: Logger = .quiet
+    ) throws -> ShowEmitter.EmitResult {
+        let index = try NoteIndex(archiveDirectory: config.archiveDirectory, idPattern: config.idPattern, logger: logger)
+        let emitter = ShowEmitter(index: index, archiveDirectory: config.archiveDirectory)
         return try emitter.emitWithStatus(refs: refs)
     }
 }
@@ -25,6 +29,8 @@ struct ShowCommand: ParsableCommand {
         """
     )
 
+    @OptionGroup var globalOptions: GlobalOptions
+
     @Option(name: .customLong("archive"), help: "Path to the Zettelkasten archive.")
     var archive: String?
 
@@ -40,10 +46,12 @@ struct ShowCommand: ParsableCommand {
                   ta show "202503091430 Mental Models.md"
                 """)
         }
-        let archiveDir = try ArchiveResolver(flagValue: archive).resolve()
+        let config = try ArchiveResolver(flagValue: archive).resolveConfig()
+        let logger = Logger(enabled: globalOptions.verbose)
         let result = try ShowPipeline.run(
-            archiveDirectory: archiveDir,
-            refs: refs.map { NoteRef(filename: $0) }
+            config: config,
+            refs: refs.map { NoteRef(filename: $0) },
+            logger: logger
         )
         print(result.output, terminator: "")
         if !result.anyResolved {

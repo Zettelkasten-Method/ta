@@ -19,20 +19,22 @@ public enum SearchPipeline {
     }
 
     public static func run(
-        archiveDirectory: URL,
+        config: ResolvedConfig,
         predicates: [RipgrepRunner.Predicate],
-        depth: Int
+        depth: Int,
+        logger: Logger = .quiet
     ) throws -> String {
         guard !predicates.isEmpty else { throw Error.noPredicates }
 
+        logger.log("archive: \(config.archiveDirectory.path) (\(config.archiveSource))")
         let candidates = try RipgrepRunner().run(
             predicates: predicates,
-            archiveDirectory: archiveDirectory
+            archiveDirectory: config.archiveDirectory
         )
-        let index = try NoteIndex(archiveDirectory: archiveDirectory)
-        let filter = StructuralFilter(index: index, archiveDirectory: archiveDirectory)
+        let index = try NoteIndex(archiveDirectory: config.archiveDirectory, idPattern: config.idPattern, logger: logger)
+        let filter = StructuralFilter(index: index, archiveDirectory: config.archiveDirectory)
         let directHits = try filter.verify(candidates: candidates, predicates: predicates)
-        let expander = GraphExpander(index: index, archiveDirectory: archiveDirectory)
+        let expander = GraphExpander(index: index, archiveDirectory: config.archiveDirectory)
         let all = try expander.expand(directHits: directHits, depth: depth)
         return SearchYAMLEmitter.emit(all)
     }
@@ -55,6 +57,8 @@ struct SearchCommand: ParsableCommand {
         """
     )
 
+    @OptionGroup var globalOptions: GlobalOptions
+
     @Option(name: .customLong("archive"), help: "Path to the Zettelkasten archive.")
     var archive: String?
 
@@ -74,7 +78,8 @@ struct SearchCommand: ParsableCommand {
     var positionalPhrase: String?
 
     func run() throws {
-        let archiveDir = try ArchiveResolver(flagValue: archive).resolve()
+        let config = try ArchiveResolver(flagValue: archive).resolveConfig()
+        let logger = Logger(enabled: globalOptions.verbose)
         var predicates: [RipgrepRunner.Predicate] = []
         predicates += tags.map { .tag($0) }
         predicates += phrases.map { .phrase($0) }
@@ -82,9 +87,10 @@ struct SearchCommand: ParsableCommand {
         if let p = positionalPhrase, !p.isEmpty { predicates.append(.phrase(p)) }
 
         let yaml = try SearchPipeline.run(
-            archiveDirectory: archiveDir,
+            config: config,
             predicates: predicates,
-            depth: depth
+            depth: depth,
+            logger: logger
         )
         print(yaml, terminator: "")
     }

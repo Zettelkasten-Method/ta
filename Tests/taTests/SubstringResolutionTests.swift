@@ -11,7 +11,7 @@ struct SubstringResolutionTests {
     @Test("filename substring wikilink resolves across suffix-timestamped notes")
     func filenameSubstringResolution() throws {
         let yaml = try SearchPipeline.run(
-            archiveDirectory: fixtureURL(),
+            config: makeFixtureConfig(fixtureURL()),
             predicates: [.phrase("links by title")],
             depth: 1
         )

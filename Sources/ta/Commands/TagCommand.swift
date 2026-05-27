@@ -14,6 +14,8 @@ struct TagCommand: ParsableCommand {
         """
     )
 
+    @OptionGroup var globalOptions: GlobalOptions
+
     @Option(name: .customLong("archive"), help: "Path to the Zettelkasten archive.")
     var archive: String?
 
@@ -24,11 +26,13 @@ struct TagCommand: ParsableCommand {
     var depth: Int = 3
 
     func run() throws {
-        let archiveDir = try ArchiveResolver(flagValue: archive).resolve()
+        let config = try ArchiveResolver(flagValue: archive).resolveConfig()
+        let logger = Logger(enabled: globalOptions.verbose)
         let yaml = try SearchPipeline.run(
-            archiveDirectory: archiveDir,
+            config: config,
             predicates: [.tag(tagName)],
-            depth: depth
+            depth: depth,
+            logger: logger
         )
         print(yaml, terminator: "")
     }
