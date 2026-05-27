@@ -5,11 +5,13 @@ public struct StructuralFilter {
     public let index: NoteIndex
     public let archiveDirectory: URL
     public let snippetWindow: Int
+    public let logger: Logger
 
-    public init(index: NoteIndex, archiveDirectory: URL, snippetWindow: Int = 120) {
+    public init(index: NoteIndex, archiveDirectory: URL, snippetWindow: Int = 120, logger: Logger = .quiet) {
         self.index = index
         self.archiveDirectory = archiveDirectory
         self.snippetWindow = snippetWindow
+        self.logger = logger
     }
 
     public func verify(
@@ -23,14 +25,17 @@ public struct StructuralFilter {
             do {
                 note = try NoteParser.parse(fileURL: url, index: index)
             } catch {
+                logger.log("filter: skip \(ref.filename) (parse error)")
                 continue
             }
             guard let hitOffset = firstPassingOffset(note: note, predicates: predicates) else {
+                logger.log("filter: reject \(ref.filename) (predicates not satisfied)")
                 continue
             }
             let snippet = Self.snippet(from: note.rawText, around: hitOffset, window: snippetWindow)
             hits.append(SearchHit(note: note, depth: 0, via: nil, snippet: snippet))
         }
+        logger.log("filter: \(candidates.count) candidates in, \(hits.count) verified")
         return hits
     }
 

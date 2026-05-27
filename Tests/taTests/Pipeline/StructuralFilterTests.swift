@@ -109,6 +109,19 @@ struct StructuralFilterTests {
         #expect(tagHits.count == 1)
     }
 
+    @Test("verbose logger captures verification summary")
+    func verboseLogging() throws {
+        var messages: [String] = []
+        let logger = Logger(enabled: true) { messages.append($0) }
+        let index = try NoteIndex(archiveDirectory: fixtureURL())
+        let filter = StructuralFilter(index: index, archiveDirectory: fixtureURL(), logger: logger)
+        _ = try filter.verify(
+            candidates: [NoteRef(filename: "202503091430 Mental Models.md")],
+            predicates: [.tag("learning")]
+        )
+        #expect(messages.contains { $0.contains("verify:") || $0.contains("filter:") })
+    }
+
     @Test("multiple predicates all must match")
     func allMatch() throws {
         let index = try NoteIndex(archiveDirectory: fixtureURL())

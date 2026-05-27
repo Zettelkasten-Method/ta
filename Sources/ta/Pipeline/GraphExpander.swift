@@ -6,16 +6,20 @@ public struct GraphExpander {
 
     public let index: NoteIndex
     public let archiveDirectory: URL
+    public let logger: Logger
 
-    public init(index: NoteIndex, archiveDirectory: URL) {
+    public init(index: NoteIndex, archiveDirectory: URL, logger: Logger = .quiet) {
         self.index = index
         self.archiveDirectory = archiveDirectory
+        self.logger = logger
     }
 
     public func expand(directHits: [SearchHit], depth: Int) throws -> [SearchHit] {
         let clamped = max(0, min(depth, Self.hardDepthCap))
         var seen: [NoteRef: SearchHit] = [:]
         var order: [NoteRef] = []
+
+        logger.log("expand: \(directHits.count) direct hits, max depth \(clamped)")
 
         for hit in directHits {
             if seen[hit.note.ref] == nil {
@@ -36,6 +40,8 @@ public struct GraphExpander {
         while !frontier.isEmpty {
             let nextFrontier = frontier
             frontier = []
+            let currentDepth = nextFrontier.first?.depth ?? 0
+            logger.log("expand: depth \(currentDepth), frontier \(nextFrontier.count) candidates")
             for entry in nextFrontier {
                 if seen[entry.ref] != nil { continue }
                 if entry.depth > clamped { continue }
@@ -57,6 +63,7 @@ public struct GraphExpander {
             }
         }
 
+        logger.log("expand: \(order.count) total (\(directHits.count) direct + \(order.count - directHits.count) expanded)")
         return order.compactMap { seen[$0] }
     }
 }

@@ -78,6 +78,21 @@ struct GraphExpanderTests {
         #expect(mmCount == 1)
     }
 
+    @Test("verbose logger captures expansion summary")
+    func verboseLogging() throws {
+        var messages: [String] = []
+        let logger = Logger(enabled: true) { messages.append($0) }
+        let index = try NoteIndex(archiveDirectory: fixtureURL())
+        let filter = StructuralFilter(index: index, archiveDirectory: fixtureURL())
+        let direct = try filter.verify(
+            candidates: [NoteRef(filename: "202503091430 Mental Models.md")],
+            predicates: [.tag("learning")]
+        )
+        let expander = GraphExpander(index: index, archiveDirectory: fixtureURL(), logger: logger)
+        _ = try expander.expand(directHits: direct, depth: 1)
+        #expect(messages.contains { $0.contains("expand:") || $0.contains("depth") })
+    }
+
     @Test("depth cap is clamped to 10")
     func depthClamp() throws {
         let index = try NoteIndex(archiveDirectory: fixtureURL())
