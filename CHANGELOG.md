@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-05-28
+
+Fixes a silent-empty-result failure for suffix-timestamped archives (`Title 202506252102.md`) and makes note ID detection configurable. Adds layered wiki-link resolution and a global `--verbose` flag so pipeline decisions are observable on stderr.
+
+### Added
+
+- **Configurable note ID detection.** The default pattern is now the unanchored regex `\d{12}`, a strict superset of the previous prefix-only behavior. Prefix (`202503091430 Title.md`), suffix (`Title 202506252102.md`), and mid-filename layouts all index correctly with no config required. See [ADR-006](docs/adrs/ADR-006--Note-ID-Detection.md).
+- **`id_pattern` config key** in `~/.config/ta/config.yaml` for custom schemes (14-digit `YYYYMMDDHHMMSS`, alphanumeric IDs, project-specific patterns). Invalid regexes fall back to the default with a verbose-mode warning rather than crashing.
+- **Layered wiki-link resolution.** `[[target]]` resolves in three tiers: exact ID → filename substring (case-insensitive, Archive-style) → unambiguous ID prefix. `[[Cognitive Distancing]]` now resolves to `Thinking About Thinking - Cognitive Distancing 202506252102.md` when the substring is unique.
+- **`--verbose` global flag** on every subcommand (`search`, `tag`, `show`). Logs pipeline decisions to stderr: resolved config (archive path + id_pattern + provenance), file-scan skips with reasons, ripgrep commands and match counts, structural verification, graph expansion depth, and wiki-link resolution method. Defaults to off; stdout is unchanged.
+- **ADR-006** documenting the ID-detection redesign and alternatives considered.
+
+### Changed
+
+- **`NoteIndex` indexes filename stems** alongside extracted IDs, enabling substring-based wiki-link resolution. All non-overlapping matches of the ID pattern in a filename become index keys (a file with two 12-digit runs is reachable via either).
+- **`NoteParser` extracts the timestamp ID position-agnostically.** Title extraction no longer requires a 12-digit prefix; suffix-timestamped notes get the correct title and ID.
+- **Pipeline plumbing.** `SearchPipeline`, `ShowPipeline`, and the runners accept a `ResolvedConfig` (archive + id_pattern + provenance) and an optional `Logger` so verbose mode reaches every layer.
+
+### Internal
+
+- New `IDPattern` type wraps a configurable regex extractor (`Sources/ta/Config/IDPattern.swift`).
+- New `ResolvedConfig` bundles archive directory, ID pattern, and provenance for downstream consumers (`Sources/ta/Config/ResolvedConfig.swift`).
+- New `Logger` type with injectable sink for stderr diagnostics (`Sources/ta/Logging/Logger.swift`).
+- Dead `NoteIndex.extractTimestampPrefix` removed; `IDPattern.extractIDs(from:)` is the replacement.
+- 33 new tests across `IDPatternTests`, `ArchiveResolverTests`, `LoggerTests`, `NoteIndexTests`, `NoteParserTests`, `SubstringResolutionTests`, `IntegrationTests`, `GraphExpanderTests`, `RipgrepRunnerTests`, `StructuralFilterTests`, and `SearchCommandTests`. The suite is now 112 tests across 19 suites.
+
 ## [0.2.0] - 2026-05-13
 
 Search now finds matches it previously hid: text inside Markdown inline-code spans (e.g. `` `LSUIElement` ``), notes stored as `.txt`, and queries that don't match the casing of the source.
@@ -49,6 +75,7 @@ First prototype release of `ta` — a command-line retrieval tool over a Zettelk
 - **Design documentation** — [design spec](docs/superpowers/specs/2026-04-17-ta-cli-design.md), [implementation plan](docs/superpowers/plans/2026-04-17-ta-cli.md), and [ADRs 001–005](docs/adrs/).
 - 72 tests across 16 suites, including end-to-end integration tests over a 13-note fixture archive.
 
-[Unreleased]: https://codeberg.org/ctietze/ta/compare/0.2.0...HEAD
+[Unreleased]: https://codeberg.org/ctietze/ta/compare/0.3.0...HEAD
+[0.3.0]: https://codeberg.org/ctietze/ta/releases/tag/0.3.0
 [0.2.0]: https://codeberg.org/ctietze/ta/releases/tag/0.2.0
 [0.1.0]: https://codeberg.org/ctietze/ta/releases/tag/0.1.0

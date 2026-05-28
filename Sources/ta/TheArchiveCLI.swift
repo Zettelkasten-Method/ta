@@ -27,7 +27,7 @@ struct TheArchiveCLI: ParsableCommand {
           2. TA_DIR  — environment variable
           3. archive: PATH   — key in ~/.config/ta/config.yaml
         """,
-        version: "0.2.0",
+        version: "0.3.0",
         subcommands: [SearchCommand.self, TagCommand.self, ShowCommand.self],
         defaultSubcommand: nil
     )
