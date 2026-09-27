@@ -1,7 +1,7 @@
 import Foundation
 
 public struct Logger: @unchecked Sendable {
-    public let enabled: Bool
+    let enabled: Bool
     private let sink: (String) -> Void
 
     public static let quiet = Logger(enabled: false)
@@ -11,7 +11,7 @@ public struct Logger: @unchecked Sendable {
         self.sink = sink
     }
 
-    public func log(_ message: @autoclosure () -> String) {
+    func log(_ message: @autoclosure () -> String) {
         guard enabled else { return }
         sink("[ta] \(message())")
     }

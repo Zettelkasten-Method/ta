@@ -1,12 +1,12 @@
 import Foundation
 
-public enum WikiLinkRegex {
+enum WikiLinkRegex {
     private static let pattern = try! NSRegularExpression(
         pattern: #"\[\[([^\]|\n]+)(?:\|[^\]\n]+)?\]\]"#,
         options: []
     )
 
-    public static func extractTargets(from text: String) -> [String] {
+    static func extractTargets(from text: String) -> [String] {
         let range = NSRange(text.startIndex..., in: text)
         let matches = pattern.matches(in: text, options: [], range: range)
         var seen = Set<String>()

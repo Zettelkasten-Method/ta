@@ -27,9 +27,9 @@ public struct ArchiveResolver {
         }
     }
 
-    public let flagValue: String?
-    public let environment: [String: String]
-    public let configFileReader: (URL) -> String?
+    let flagValue: String?
+    let environment: [String: String]
+    let configFileReader: (URL) -> String?
 
     public init(
         flagValue: String?,
@@ -41,7 +41,7 @@ public struct ArchiveResolver {
         self.configFileReader = configFileReader
     }
 
-    public func resolve() throws -> URL {
+    func resolve() throws -> URL {
         try resolveConfig().archiveDirectory
     }
 
@@ -93,7 +93,7 @@ public struct ArchiveResolver {
         return URL(fileURLWithPath: expanded, isDirectory: true).resolvingSymlinksInPath()
     }
 
-    public static func defaultConfigPath() -> URL {
+    static func defaultConfigPath() -> URL {
         let home = FileManager.default.homeDirectoryForCurrentUser
         return home.appendingPathComponent(".config/ta/config.yaml")
     }

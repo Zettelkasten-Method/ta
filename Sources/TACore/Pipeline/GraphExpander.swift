@@ -1,20 +1,20 @@
 // Sources/TACore/Pipeline/GraphExpander.swift
 import Foundation
 
-public struct GraphExpander {
-    public static let hardDepthCap = 10
+struct GraphExpander {
+    static let hardDepthCap = 10
 
-    public let index: NoteIndex
-    public let archiveDirectory: URL
-    public let logger: Logger
+    let index: NoteIndex
+    let archiveDirectory: URL
+    let logger: Logger
 
-    public init(index: NoteIndex, archiveDirectory: URL, logger: Logger = .quiet) {
+    init(index: NoteIndex, archiveDirectory: URL, logger: Logger = .quiet) {
         self.index = index
         self.archiveDirectory = archiveDirectory
         self.logger = logger
     }
 
-    public func expand(directHits: [SearchHit], depth: Int) throws -> [SearchHit] {
+    func expand(directHits: [SearchHit], depth: Int) throws -> [SearchHit] {
         let clamped = max(0, min(depth, Self.hardDepthCap))
         var seen: [NoteRef: SearchHit] = [:]
         var order: [NoteRef] = []

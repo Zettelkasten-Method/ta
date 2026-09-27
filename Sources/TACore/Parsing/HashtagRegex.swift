@@ -1,13 +1,13 @@
 // Sources/TACore/Parsing/HashtagRegex.swift
 import Foundation
 
-public enum HashtagRegex {
+enum HashtagRegex {
     private static let pattern = try! NSRegularExpression(
         pattern: #"(?<=^|[^\p{L}\p{N}_])#([\p{L}\p{N}_-]+)"#,
         options: []
     )
 
-    public static func extract(from text: String) -> [String] {
+    static func extract(from text: String) -> [String] {
         let range = NSRange(text.startIndex..., in: text)
         let matches = pattern.matches(in: text, options: [], range: range)
         var seen = Set<String>()

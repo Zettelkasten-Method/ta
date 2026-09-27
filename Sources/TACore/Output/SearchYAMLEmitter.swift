@@ -1,7 +1,7 @@
 import Foundation
 
-public enum SearchYAMLEmitter {
-    public static func emit(_ hits: [SearchHit]) -> String {
+enum SearchYAMLEmitter {
+    static func emit(_ hits: [SearchHit]) -> String {
         guard !hits.isEmpty else { return "[]\n" }
         var out = ""
         for hit in hits {

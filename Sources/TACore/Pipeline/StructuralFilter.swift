@@ -1,20 +1,20 @@
 // Sources/TACore/Pipeline/StructuralFilter.swift
 import Foundation
 
-public struct StructuralFilter {
-    public let index: NoteIndex
-    public let archiveDirectory: URL
-    public let snippetWindow: Int
-    public let logger: Logger
+struct StructuralFilter {
+    let index: NoteIndex
+    let archiveDirectory: URL
+    let snippetWindow: Int
+    let logger: Logger
 
-    public init(index: NoteIndex, archiveDirectory: URL, snippetWindow: Int = 120, logger: Logger = .quiet) {
+    init(index: NoteIndex, archiveDirectory: URL, snippetWindow: Int = 120, logger: Logger = .quiet) {
         self.index = index
         self.archiveDirectory = archiveDirectory
         self.snippetWindow = snippetWindow
         self.logger = logger
     }
 
-    public func verify(
+    func verify(
         candidates: [NoteRef],
         predicates: [SearchPredicate]
     ) throws -> [SearchHit] {

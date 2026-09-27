@@ -2,13 +2,13 @@
 import Foundation
 import Markdown
 
-public enum NoteParser {
-    public enum Error: Swift.Error {
+enum NoteParser {
+    enum Error: Swift.Error {
         case cannotReadFile(URL)
         case missingTimestampPrefix(String)
     }
 
-    public static func parse(fileURL: URL, index: NoteIndex) throws -> ParsedNote {
+    static func parse(fileURL: URL, index: NoteIndex) throws -> ParsedNote {
         guard let data = try? Data(contentsOf: fileURL),
               let source = String(data: data, encoding: .utf8) else {
             throw Error.cannotReadFile(fileURL)

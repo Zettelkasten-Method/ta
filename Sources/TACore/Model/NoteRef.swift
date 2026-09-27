@@ -2,7 +2,7 @@
 import Foundation
 
 public struct NoteRef: Hashable, Sendable {
-    public let filename: String
+    let filename: String
 
     public init(filename: String) {
         self.filename = filename

@@ -1,13 +1,13 @@
 // Sources/TACore/Model/SearchHit.swift
 import Foundation
 
-public struct SearchHit: Sendable, Equatable {
-    public let note: ParsedNote
-    public let depth: Int
-    public let via: NoteRef?
-    public let snippet: String?
+struct SearchHit: Sendable, Equatable {
+    let note: ParsedNote
+    let depth: Int
+    let via: NoteRef?
+    let snippet: String?
 
-    public init(note: ParsedNote, depth: Int, via: NoteRef?, snippet: String?) {
+    init(note: ParsedNote, depth: Int, via: NoteRef?, snippet: String?) {
         self.note = note
         self.depth = depth
         self.via = via

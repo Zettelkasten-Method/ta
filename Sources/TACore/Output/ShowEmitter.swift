@@ -2,10 +2,10 @@
 import Foundation
 
 public struct ShowEmitter {
-    public let index: NoteIndex
-    public let archiveDirectory: URL
+    let index: NoteIndex
+    let archiveDirectory: URL
 
-    public init(index: NoteIndex, archiveDirectory: URL) {
+    init(index: NoteIndex, archiveDirectory: URL) {
         self.index = index
         self.archiveDirectory = archiveDirectory
     }
@@ -15,7 +15,7 @@ public struct ShowEmitter {
         public let anyResolved: Bool
     }
 
-    public func emitWithStatus(refs: [NoteRef]) throws -> EmitResult {
+    func emitWithStatus(refs: [NoteRef]) throws -> EmitResult {
         var out = ""
         var anyResolved = false
         for ref in refs {
@@ -58,7 +58,7 @@ public struct ShowEmitter {
         return EmitResult(output: out, anyResolved: anyResolved)
     }
 
-    public func emit(refs: [NoteRef]) throws -> String {
+    func emit(refs: [NoteRef]) throws -> String {
         try emitWithStatus(refs: refs).output
     }
 

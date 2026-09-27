@@ -1,12 +1,12 @@
 // Sources/TACore/Pipeline/RipgrepRunner.swift
 import Foundation
 
-public struct RipgrepRunner {
-    public enum Error: Swift.Error, CustomStringConvertible {
+struct RipgrepRunner {
+    enum Error: Swift.Error, CustomStringConvertible {
         case toolFailed(String, Int32)
         case toolNotFound
 
-        public var description: String {
+        var description: String {
             switch self {
             case .toolFailed(let cmd, let code):
                 return """
@@ -24,9 +24,9 @@ public struct RipgrepRunner {
         }
     }
 
-    public init() {}
+    init() {}
 
-    public func run(predicates: [SearchPredicate], archiveDirectory: URL, logger: Logger = .quiet) throws -> [NoteRef] {
+    func run(predicates: [SearchPredicate], archiveDirectory: URL, logger: Logger = .quiet) throws -> [NoteRef] {
         guard !predicates.isEmpty else { return [] }
         let useRipgrep = Self.hasTool("rg")
         var intersection: Set<String>? = nil
@@ -114,4 +114,3 @@ public struct RipgrepRunner {
         }
     }
 }
-

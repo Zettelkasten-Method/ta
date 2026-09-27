@@ -1,17 +1,17 @@
 // Sources/TACore/Model/ParsedNote.swift
 import Foundation
 
-public struct ParsedNote: Sendable, Equatable {
-    public let ref: NoteRef
-    public let title: String
-    public let timestampID: String
-    public let outgoingLinks: [NoteRef]
-    public let unresolvedLinkText: [String]
-    public let tags: [String]
-    public let nonCodeText: String
-    public let rawText: String
+struct ParsedNote: Sendable, Equatable {
+    let ref: NoteRef
+    let title: String
+    let timestampID: String
+    let outgoingLinks: [NoteRef]
+    let unresolvedLinkText: [String]
+    let tags: [String]
+    let nonCodeText: String
+    let rawText: String
 
-    public init(
+    init(
         ref: NoteRef,
         title: String,
         timestampID: String,

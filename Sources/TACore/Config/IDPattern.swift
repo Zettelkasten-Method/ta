@@ -1,12 +1,12 @@
 import Foundation
 
-public struct IDPattern: Sendable, Equatable {
-    public let source: String
+struct IDPattern: Sendable, Equatable {
+    let source: String
     private let regex: NSRegularExpression
 
-    public static let `default` = IDPattern(rawSource: "\\d{12}")
+    static let `default` = IDPattern(rawSource: "\\d{12}")
 
-    public init?(source: String) {
+    init?(source: String) {
         guard let regex = try? NSRegularExpression(pattern: source) else { return nil }
         self.source = source
         self.regex = regex
@@ -17,7 +17,7 @@ public struct IDPattern: Sendable, Equatable {
         self.regex = try! NSRegularExpression(pattern: rawSource)
     }
 
-    public func extractIDs(from filenameStem: String) -> [String] {
+    func extractIDs(from filenameStem: String) -> [String] {
         let range = NSRange(filenameStem.startIndex..., in: filenameStem)
         let matches = regex.matches(in: filenameStem, range: range)
         var seen = Set<String>()
@@ -33,7 +33,7 @@ public struct IDPattern: Sendable, Equatable {
         return result
     }
 
-    public static func == (lhs: IDPattern, rhs: IDPattern) -> Bool {
+    static func == (lhs: IDPattern, rhs: IDPattern) -> Bool {
         lhs.source == rhs.source
     }
 }

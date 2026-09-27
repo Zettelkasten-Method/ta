@@ -1,8 +1,8 @@
 import Foundation
 import Markdown
 
-public enum NonCodeTextExtractor {
-    public static func extract(from document: Document) -> String {
+enum NonCodeTextExtractor {
+    static func extract(from document: Document) -> String {
         var buffer = ""
         var walker = Walker(buffer: "")
         walker.visit(document)

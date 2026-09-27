@@ -1,19 +1,19 @@
 // Sources/TACore/Pipeline/NoteIndex.swift
 import Foundation
 
-public struct NoteIndex: Sendable {
-    public static let supportedExtensions: [String] = ["md", "txt"]
+struct NoteIndex: Sendable {
+    static let supportedExtensions: [String] = ["md", "txt"]
 
-    public let archiveDirectory: URL
-    public let idPattern: IDPattern
-    public let logger: Logger
+    let archiveDirectory: URL
+    let idPattern: IDPattern
+    let logger: Logger
     private let byTimestampID: [String: [NoteRef]]
     private let sortedTimestampIDs: [String]
     private let stemsByFilename: [String: String]
 
-    public var count: Int { byTimestampID.values.reduce(0) { $0 + $1.count } }
+    var count: Int { byTimestampID.values.reduce(0) { $0 + $1.count } }
 
-    public init(archiveDirectory: URL, idPattern: IDPattern = .default, logger: Logger = .quiet) throws {
+    init(archiveDirectory: URL, idPattern: IDPattern = .default, logger: Logger = .quiet) throws {
         self.archiveDirectory = archiveDirectory
         self.idPattern = idPattern
         self.logger = logger
@@ -55,7 +55,7 @@ public struct NoteIndex: Sendable {
         self.stemsByFilename = stems
     }
 
-    public func resolve(wikilinkText: String) -> NoteRef? {
+    func resolve(wikilinkText: String) -> NoteRef? {
         let key = wikilinkText.trimmingCharacters(in: .whitespaces)
         guard !key.isEmpty else { return nil }
 
