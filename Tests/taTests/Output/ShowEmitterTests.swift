@@ -1,7 +1,7 @@
 // Tests/taTests/Output/ShowEmitterTests.swift
 import Testing
 import Foundation
-@testable import ta
+@testable import TACore
 
 @Suite("ShowEmitter")
 struct ShowEmitterTests {

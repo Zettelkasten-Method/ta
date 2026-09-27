@@ -1,7 +1,7 @@
 // Tests/taTests/Pipeline/GraphExpanderTests.swift
 import Testing
 import Foundation
-@testable import ta
+@testable import TACore
 
 @Suite("GraphExpander")
 struct GraphExpanderTests {

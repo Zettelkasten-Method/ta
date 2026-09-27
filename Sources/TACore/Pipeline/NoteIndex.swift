@@ -1,4 +1,4 @@
-// Sources/ta/Pipeline/NoteIndex.swift
+// Sources/TACore/Pipeline/NoteIndex.swift
 import Foundation
 
 public struct NoteIndex: Sendable {

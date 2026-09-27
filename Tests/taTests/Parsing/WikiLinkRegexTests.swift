@@ -1,5 +1,5 @@
 import Testing
-@testable import ta
+@testable import TACore
 
 @Suite("WikiLinkRegex")
 struct WikiLinkRegexTests {

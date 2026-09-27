@@ -13,17 +13,23 @@ let package = Package(
         .package(url: "https://github.com/jpsim/Yams", from: "5.1.0"),
     ],
     targets: [
-        .executableTarget(
-            name: "ta",
+        .target(
+            name: "TACore",
             dependencies: [
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Markdown", package: "swift-markdown"),
                 .product(name: "Yams", package: "Yams"),
             ]
         ),
+        .executableTarget(
+            name: "ta",
+            dependencies: [
+                "TACore",
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+            ]
+        ),
         .testTarget(
             name: "taTests",
-            dependencies: ["ta"],
+            dependencies: ["TACore"],
             resources: [.copy("Fixtures")]
         ),
     ]

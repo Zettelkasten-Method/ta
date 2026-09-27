@@ -1,13 +1,7 @@
-// Sources/ta/Pipeline/RipgrepRunner.swift
+// Sources/TACore/Pipeline/RipgrepRunner.swift
 import Foundation
 
 public struct RipgrepRunner {
-    public enum Predicate: Sendable, Equatable {
-        case tag(String)
-        case phrase(String)
-        case word(String)
-    }
-
     public enum Error: Swift.Error, CustomStringConvertible {
         case toolFailed(String, Int32)
         case toolNotFound
@@ -32,7 +26,7 @@ public struct RipgrepRunner {
 
     public init() {}
 
-    public func run(predicates: [Predicate], archiveDirectory: URL, logger: Logger = .quiet) throws -> [NoteRef] {
+    public func run(predicates: [SearchPredicate], archiveDirectory: URL, logger: Logger = .quiet) throws -> [NoteRef] {
         guard !predicates.isEmpty else { return [] }
         let useRipgrep = Self.hasTool("rg")
         var intersection: Set<String>? = nil
@@ -54,7 +48,7 @@ public struct RipgrepRunner {
     }
 
     private func runOne(
-        predicate: Predicate,
+        predicate: SearchPredicate,
         in archive: URL,
         useRipgrep: Bool
     ) throws -> Set<String> {
@@ -121,12 +115,3 @@ public struct RipgrepRunner {
     }
 }
 
-extension RipgrepRunner.Predicate: CustomStringConvertible {
-    public var description: String {
-        switch self {
-        case .tag(let t): return "tag(\(t))"
-        case .phrase(let p): return "phrase(\(p))"
-        case .word(let w): return "word(\(w))"
-        }
-    }
-}

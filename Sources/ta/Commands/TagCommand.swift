@@ -1,5 +1,6 @@
 import Foundation
 import ArgumentParser
+import TACore
 
 struct TagCommand: ParsableCommand {
     static let configuration = CommandConfiguration(

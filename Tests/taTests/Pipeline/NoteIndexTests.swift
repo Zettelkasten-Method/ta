@@ -1,7 +1,7 @@
 // Tests/taTests/Pipeline/NoteIndexTests.swift
 import Testing
 import Foundation
-@testable import ta
+@testable import TACore
 
 @Suite("NoteIndex")
 struct NoteIndexTests {

@@ -1,4 +1,4 @@
-// Sources/ta/Parsing/NoteParser.swift
+// Sources/TACore/Parsing/NoteParser.swift
 import Foundation
 import Markdown
 

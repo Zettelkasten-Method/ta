@@ -1,7 +1,7 @@
 // Tests/taTests/Pipeline/RipgrepRunnerTests.swift
 import Testing
 import Foundation
-@testable import ta
+@testable import TACore
 
 @Suite("RipgrepRunner")
 struct RipgrepRunnerTests {

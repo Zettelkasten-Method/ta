@@ -1,7 +1,7 @@
 // Tests/taTests/Parsing/NoteParserTests.swift
 import Testing
 import Foundation
-@testable import ta
+@testable import TACore
 
 @Suite("NoteParser")
 struct NoteParserTests {

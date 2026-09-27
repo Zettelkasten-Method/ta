@@ -1,4 +1,4 @@
-// Sources/ta/Output/ShowEmitter.swift
+// Sources/TACore/Output/ShowEmitter.swift
 import Foundation
 
 public struct ShowEmitter {

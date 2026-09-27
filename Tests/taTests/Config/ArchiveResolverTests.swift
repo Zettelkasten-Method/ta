@@ -1,7 +1,7 @@
 // Tests/taTests/Config/ArchiveResolverTests.swift
 import Testing
 import Foundation
-@testable import ta
+@testable import TACore
 
 @Suite("ArchiveResolver")
 struct ArchiveResolverTests {

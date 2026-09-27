@@ -1,6 +1,6 @@
 import Testing
 import Markdown
-@testable import ta
+@testable import TACore
 
 @Suite("NonCodeTextExtractor")
 struct NonCodeTextExtractorTests {

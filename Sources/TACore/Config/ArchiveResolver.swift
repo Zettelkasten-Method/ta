@@ -1,4 +1,4 @@
-// Sources/ta/Config/ArchiveResolver.swift
+// Sources/TACore/Config/ArchiveResolver.swift
 import Foundation
 import Yams
 

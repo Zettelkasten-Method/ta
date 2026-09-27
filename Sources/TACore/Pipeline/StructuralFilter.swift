@@ -1,4 +1,4 @@
-// Sources/ta/Pipeline/StructuralFilter.swift
+// Sources/TACore/Pipeline/StructuralFilter.swift
 import Foundation
 
 public struct StructuralFilter {
@@ -16,7 +16,7 @@ public struct StructuralFilter {
 
     public func verify(
         candidates: [NoteRef],
-        predicates: [RipgrepRunner.Predicate]
+        predicates: [SearchPredicate]
     ) throws -> [SearchHit] {
         var hits: [SearchHit] = []
         for ref in candidates {
@@ -41,7 +41,7 @@ public struct StructuralFilter {
 
     private func firstPassingOffset(
         note: ParsedNote,
-        predicates: [RipgrepRunner.Predicate]
+        predicates: [SearchPredicate]
     ) -> Int? {
         var firstHit: Int? = nil
         for predicate in predicates {

@@ -1,5 +1,5 @@
 import Foundation
-@testable import ta
+@testable import TACore
 
 func makeFixtureConfig(_ url: URL) -> ResolvedConfig {
     ResolvedConfig(

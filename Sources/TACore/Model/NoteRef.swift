@@ -1,4 +1,4 @@
-// Sources/ta/Model/NoteRef.swift
+// Sources/TACore/Model/NoteRef.swift
 import Foundation
 
 public struct NoteRef: Hashable, Sendable {

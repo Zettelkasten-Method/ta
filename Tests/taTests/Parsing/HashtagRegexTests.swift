@@ -1,6 +1,6 @@
 // Tests/taTests/Parsing/HashtagRegexTests.swift
 import Testing
-@testable import ta
+@testable import TACore
 
 @Suite("HashtagRegex")
 struct HashtagRegexTests {

@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-@testable import ta
+@testable import TACore
 
 @Suite("IDPattern")
 struct IDPatternTests {

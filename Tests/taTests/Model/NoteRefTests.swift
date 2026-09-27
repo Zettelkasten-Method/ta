@@ -1,6 +1,6 @@
 // Tests/taTests/Model/NoteRefTests.swift
 import Testing
-@testable import ta
+@testable import TACore
 
 @Suite("NoteRef")
 struct NoteRefTests {
