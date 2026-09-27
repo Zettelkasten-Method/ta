@@ -1,4 +1,3 @@
-// Sources/TACore/Model/ParsedNote.swift
 import Foundation
 
 struct ParsedNote: Sendable, Equatable {

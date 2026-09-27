@@ -1,4 +1,3 @@
-// Sources/TACore/Config/ArchiveResolver.swift
 import Foundation
 import Yams
 
@@ -90,17 +89,16 @@ public struct ArchiveResolver {
         guard FileManager.default.fileExists(atPath: expanded, isDirectory: &isDir), isDir.boolValue else {
             throw Error.notADirectory(expanded)
         }
-        return URL(fileURLWithPath: expanded, isDirectory: true).resolvingSymlinksInPath()
+        return URL(filePath: expanded, directoryHint: .isDirectory).resolvingSymlinksInPath()
     }
 
     static func defaultConfigPath() -> URL {
         let home = FileManager.default.homeDirectoryForCurrentUser
-        return home.appendingPathComponent(".config/ta/config.yaml")
+        return home.appending(path: ".config/ta/config.yaml")
     }
 
     public static let defaultConfigReader: @Sendable (URL) -> String? = { url in
-        guard let data = try? Data(contentsOf: url) else { return nil }
-        return String(data: data, encoding: .utf8)
+        try? String(contentsOf: url, encoding: .utf8)
     }
 
     private static func parseConfig(from yaml: String) -> (archive: String?, idPattern: String?)? {

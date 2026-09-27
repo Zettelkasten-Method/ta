@@ -1,4 +1,3 @@
-// Sources/TACore/Pipeline/GraphExpander.swift
 import Foundation
 
 struct GraphExpander {
@@ -45,7 +44,7 @@ struct GraphExpander {
             for entry in nextFrontier {
                 if seen[entry.ref] != nil { continue }
                 if entry.depth > clamped { continue }
-                let url = archiveDirectory.appendingPathComponent(entry.ref.filename)
+                let url = archiveDirectory.appending(path: entry.ref.filename)
                 let note: ParsedNote
                 do {
                     note = try NoteParser.parse(fileURL: url, index: index)

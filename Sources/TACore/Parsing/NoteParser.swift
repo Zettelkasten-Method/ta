@@ -1,4 +1,3 @@
-// Sources/TACore/Parsing/NoteParser.swift
 import Foundation
 import Markdown
 
@@ -9,12 +8,11 @@ enum NoteParser {
     }
 
     static func parse(fileURL: URL, index: NoteIndex) throws -> ParsedNote {
-        guard let data = try? Data(contentsOf: fileURL),
-              let source = String(data: data, encoding: .utf8) else {
+        guard let source = try? String(contentsOf: fileURL, encoding: .utf8) else {
             throw Error.cannotReadFile(fileURL)
         }
         let filename = fileURL.lastPathComponent
-        let stem = (filename as NSString).deletingPathExtension
+        let stem = fileURL.deletingPathExtension().lastPathComponent
         let ids = index.idPattern.extractIDs(from: stem)
         guard let primaryID = ids.first else {
             throw Error.missingTimestampPrefix(filename)

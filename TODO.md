@@ -7,13 +7,6 @@ Each item is delegated to an implementer subagent; the controller reviews the
 diff and runs `swift test` before committing. Re-evaluate the ordering and
 value of remaining items after each one lands.
 
-## 10. Modern Foundation API
-
-`URL(filePath:)` / `appending(path:)` everywhere (already mixed),
-`String(contentsOf:encoding:)` instead of `Data` round-trips,
-`FileHandle.write(contentsOf:)`, replace `NSString` path helpers
-(`expandingTildeInPath`, `deletingPathExtension`).
-
 ## 11. Delete dead API
 
 `ArchiveResolver.resolve()`, `ShowEmitter.emit(refs:)`, and

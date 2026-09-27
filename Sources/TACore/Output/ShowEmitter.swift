@@ -1,4 +1,3 @@
-// Sources/TACore/Output/ShowEmitter.swift
 import Foundation
 
 public struct ShowEmitter {
@@ -23,7 +22,7 @@ public struct ShowEmitter {
                 out += errorBlock(ref: typedRef, label: "not-found")
                 continue
             }
-            let url = archiveDirectory.appendingPathComponent(ref.filename)
+            let url = archiveDirectory.appending(path: ref.filename)
             let note: ParsedNote
             do {
                 note = try NoteParser.parse(fileURL: url, index: index)
@@ -48,7 +47,7 @@ public struct ShowEmitter {
     /// Falls back to the file system so an existing file the index skipped (no ID in its name) is not reported as not-found.
     private func resolve(_ typedRef: NoteRef) -> NoteRef? {
         if let indexed = index.canonicalRef(for: typedRef) { return indexed }
-        let url = archiveDirectory.appendingPathComponent(typedRef.filename)
+        let url = archiveDirectory.appending(path: typedRef.filename)
         return FileManager.default.fileExists(atPath: url.path) ? typedRef : nil
     }
 

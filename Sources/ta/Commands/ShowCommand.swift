@@ -1,4 +1,3 @@
-// Sources/ta/Commands/ShowCommand.swift
 import Foundation
 import ArgumentParser
 import TACore
@@ -44,7 +43,7 @@ struct ShowCommand: ParsableCommand {
         )
         print(result.output, terminator: "")
         if !result.anyResolved {
-            FileHandle.standardError.write(Data("""
+            try? FileHandle.standardError.write(contentsOf: Data("""
                 ta: no refs resolved. A ref must be a full filename from the archive.
                 Tip: run 'ta search' or 'ta tag' first to list valid refs.
 

@@ -1,4 +1,3 @@
-// Sources/TACore/Pipeline/NoteIndex.swift
 import Foundation
 
 struct NoteIndex: Sendable {
@@ -37,7 +36,7 @@ struct NoteIndex: Sendable {
                 continue
             }
             matchedExt += 1
-            let stem = (filename as NSString).deletingPathExtension
+            let stem = url.deletingPathExtension().lastPathComponent
             let ids = idPattern.extractIDs(from: stem)
             if ids.isEmpty {
                 skippedNoID += 1

@@ -1,4 +1,3 @@
-// Sources/TACore/Pipeline/RipgrepRunner.swift
 import Foundation
 
 struct RipgrepRunner {
@@ -127,7 +126,7 @@ struct RipgrepRunner {
         var set = Set<String>()
         for line in output.split(separator: "\n", omittingEmptySubsequences: true) {
             let path = String(line)
-            let url = URL(fileURLWithPath: path)
+            let url = URL(filePath: path)
             set.insert(url.lastPathComponent)
         }
         return set

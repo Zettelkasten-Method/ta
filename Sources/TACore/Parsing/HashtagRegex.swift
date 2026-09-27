@@ -1,4 +1,3 @@
-// Sources/TACore/Parsing/HashtagRegex.swift
 import Foundation
 
 enum HashtagRegex {

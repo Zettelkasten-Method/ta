@@ -1,4 +1,3 @@
-// Sources/TACore/Model/SearchHit.swift
 import Foundation
 
 struct SearchHit: Sendable, Equatable {

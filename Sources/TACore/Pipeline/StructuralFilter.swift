@@ -1,4 +1,3 @@
-// Sources/TACore/Pipeline/StructuralFilter.swift
 import Foundation
 
 struct StructuralFilter {
@@ -20,7 +19,7 @@ struct StructuralFilter {
     ) throws -> [SearchHit] {
         var hits: [SearchHit] = []
         for ref in candidates {
-            let url = archiveDirectory.appendingPathComponent(ref.filename)
+            let url = archiveDirectory.appending(path: ref.filename)
             let note: ParsedNote
             do {
                 note = try NoteParser.parse(fileURL: url, index: index)

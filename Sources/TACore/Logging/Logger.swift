@@ -12,7 +12,7 @@ public struct Logger: Sendable {
     }
 
     public static func standardErrorSink(_ message: String) {
-        FileHandle.standardError.write(Data((message + "\n").utf8))
+        try? FileHandle.standardError.write(contentsOf: Data((message + "\n").utf8))
     }
 
     func log(_ message: @autoclosure () -> String) {
