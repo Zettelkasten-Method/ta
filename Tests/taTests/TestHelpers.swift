@@ -4,8 +4,8 @@ import Foundation
 func makeFixtureConfig(_ url: URL) -> ResolvedConfig {
     ResolvedConfig(
         archiveDirectory: url,
-        archiveSource: "test",
+        archiveSource: .flag,
         idPattern: .default,
-        idPatternSource: "default"
+        idPatternSource: .builtInDefault
     )
 }

@@ -68,7 +68,7 @@ struct ArchiveResolverTests {
         let config = try resolver.resolveConfig()
         #expect(config.archiveDirectory.path == tmp.path)
         #expect(config.idPattern == .default)
-        #expect(config.idPatternSource == "default")
+        #expect(config.idPatternSource == .builtInDefault)
     }
 
     @Test("resolveConfig parses id_pattern from config YAML")
@@ -82,7 +82,7 @@ struct ArchiveResolverTests {
         )
         let config = try resolver.resolveConfig()
         #expect(config.idPattern.source == "\\d{14}")
-        #expect(config.idPatternSource == "config")
+        #expect(config.idPatternSource == .configFile)
     }
 
     @Test("resolveConfig falls back to default on invalid id_pattern")
@@ -103,13 +103,21 @@ struct ArchiveResolverTests {
         let tmp = try makeTempDir()
         defer { try? FileManager.default.removeItem(at: tmp) }
         let fromFlag = ArchiveResolver(flagValue: tmp.path, environment: [:], configFileReader: { _ in nil })
-        #expect(try fromFlag.resolveConfig().archiveSource == "flag")
+        #expect(try fromFlag.resolveConfig().archiveSource == .flag)
 
         let fromEnv = ArchiveResolver(flagValue: nil, environment: ["TA_DIR": tmp.path], configFileReader: { _ in nil })
-        #expect(try fromEnv.resolveConfig().archiveSource == "env")
+        #expect(try fromEnv.resolveConfig().archiveSource == .environment)
 
         let fromConfig = ArchiveResolver(flagValue: nil, environment: [:], configFileReader: { _ in "archive: \(tmp.path)\n" })
-        #expect(try fromConfig.resolveConfig().archiveSource == "config")
+        #expect(try fromConfig.resolveConfig().archiveSource == .configFile)
+    }
+
+    @Test("config sources render the words the verbose log prints")
+    func sourceDescriptions() {
+        typealias A = ResolvedConfig.ArchiveSource
+        typealias P = ResolvedConfig.IDPatternSource
+        #expect([A.flag, .environment, .configFile].map(String.init(describing:)) == ["flag", "env", "config"])
+        #expect([P.configFile, .builtInDefault].map(String.init(describing:)) == ["config", "default"])
     }
 
     private func makeTempDir() throws -> URL {

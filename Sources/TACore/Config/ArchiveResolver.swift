@@ -51,29 +51,29 @@ public struct ArchiveResolver {
         let parsed = configContents.flatMap { Self.parseConfig(from: $0) }
 
         let archiveDirectory: URL
-        let archiveSource: String
+        let archiveSource: ResolvedConfig.ArchiveSource
 
         if let value = flagValue, !value.isEmpty {
             archiveDirectory = try validated(path: value)
-            archiveSource = "flag"
+            archiveSource = .flag
         } else if let value = environment["TA_DIR"], !value.isEmpty {
             archiveDirectory = try validated(path: value)
-            archiveSource = "env"
+            archiveSource = .environment
         } else if let path = parsed?.archive {
             archiveDirectory = try validated(path: path)
-            archiveSource = "config"
+            archiveSource = .configFile
         } else {
             throw Error.notConfigured(configPath: configPath.path)
         }
 
         let idPattern: IDPattern
-        let idPatternSource: String
+        let idPatternSource: ResolvedConfig.IDPatternSource
         if let patternSource = parsed?.idPattern, let pattern = IDPattern(source: patternSource) {
             idPattern = pattern
-            idPatternSource = "config"
+            idPatternSource = .configFile
         } else {
             idPattern = .default
-            idPatternSource = "default"
+            idPatternSource = .builtInDefault
         }
 
         return ResolvedConfig(

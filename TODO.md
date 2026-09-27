@@ -7,11 +7,6 @@ Each item is delegated to an implementer subagent; the controller reviews the
 diff and runs `swift test` before committing. Re-evaluate the ordering and
 value of remaining items after each one lands.
 
-## 5. Enums for `archiveSource` / `idPatternSource`
-
-`ResolvedConfig` carries two stringly typed source labels. Replace with small
-enums that render the same words in verbose logs.
-
 ## 6. `String.Index` instead of integer offsets in `StructuralFilter`
 
 `firstPassingOffset` and `snippet` convert to and from integer offsets, each
