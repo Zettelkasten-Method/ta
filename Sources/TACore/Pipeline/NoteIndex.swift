@@ -10,6 +10,7 @@ struct NoteIndex: Sendable {
     private let byTimestampID: [String: [NoteRef]]
     private let sortedTimestampIDs: [String]
     private let stemsByFilename: [String: String]
+    private let filenamesByFoldedFilename: [String: [String]]
 
     var count: Int { byTimestampID.values.reduce(0) { $0 + $1.count } }
 
@@ -53,6 +54,22 @@ struct NoteIndex: Sendable {
         self.byTimestampID = map
         self.sortedTimestampIDs = map.keys.sorted()
         self.stemsByFilename = stems
+        self.filenamesByFoldedFilename = Dictionary(grouping: stems.keys, by: Self.foldingWhitespace)
+    }
+
+    /// The indexed note whose on-disk filename equals `ref`'s, treating any Unicode whitespace as U+0020.
+    /// Returns nil when nothing matches or when several indexed filenames fold to the same name.
+    func canonicalRef(for ref: NoteRef) -> NoteRef? {
+        if let exact = stemsByFilename.index(forKey: ref.filename) {
+            return NoteRef(filename: stemsByFilename[exact].key)
+        }
+        guard let candidates = filenamesByFoldedFilename[Self.foldingWhitespace(ref.filename)],
+              candidates.count == 1 else { return nil }
+        return NoteRef(filename: candidates[0])
+    }
+
+    private static func foldingWhitespace(_ s: String) -> String {
+        String(String.UnicodeScalarView(s.unicodeScalars.map { $0.properties.isWhitespace ? " " : $0 }))
     }
 
     func resolve(wikilinkText: String) -> NoteRef? {

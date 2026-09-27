@@ -18,16 +18,15 @@ public struct ShowEmitter {
     func emitWithStatus(refs: [NoteRef]) throws -> EmitResult {
         var out = ""
         var anyResolved = false
-        for ref in refs {
-            let url = archiveDirectory.appendingPathComponent(ref.filename)
-            let exists = FileManager.default.fileExists(atPath: url.path)
-            if !exists {
+        for typedRef in refs {
+            guard let ref = resolve(typedRef) else {
                 out += "---\n"
-                out += "ref: \(yamlString(ref.filename))\n"
+                out += "ref: \(yamlString(typedRef.filename))\n"
                 out += "error: not-found\n"
                 out += "---\n"
                 continue
             }
+            let url = archiveDirectory.appendingPathComponent(ref.filename)
             let note: ParsedNote
             do {
                 note = try NoteParser.parse(fileURL: url, index: index)
@@ -56,6 +55,13 @@ public struct ShowEmitter {
             anyResolved = true
         }
         return EmitResult(output: out, anyResolved: anyResolved)
+    }
+
+    /// Falls back to the file system so an existing file the index skipped (no ID in its name) is not reported as not-found.
+    private func resolve(_ typedRef: NoteRef) -> NoteRef? {
+        if let indexed = index.canonicalRef(for: typedRef) { return indexed }
+        let url = archiveDirectory.appendingPathComponent(typedRef.filename)
+        return FileManager.default.fileExists(atPath: url.path) ? typedRef : nil
     }
 
     func emit(refs: [NoteRef]) throws -> String {

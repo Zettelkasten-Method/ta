@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **Non-ASCII search terms never matched.** Foundation's `Process` hands argv to the child in decomposed (NFD) form, so `ta search Ständer` asked ripgrep for `Sta\u{308}nder` while note bodies are NFC. Patterns now go through stdin, in both NFC and NFD form, so either body normalization matches. A term containing a newline is rejected with a clear error.
+- **`ta show` refs with special whitespace.** A ref typed with a normal space now resolves a file whose name contains a non-breaking space (or other Unicode whitespace), and NFC-typed refs resolve NFD filenames. The `ref:` line prints the on-disk name so it matches what `search` emits.
 
 ## [0.3.0] - 2026-05-28
 

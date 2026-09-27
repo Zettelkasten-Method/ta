@@ -139,4 +139,40 @@ struct NoteIndexTests {
         #expect(index.resolve(wikilinkText: "222222222222")?.filename == "222222222222 txt note.txt")
         #expect(index.resolve(wikilinkText: "333333333333") == nil)
     }
+
+    private func makeArchive(_ filenames: [String]) throws -> URL {
+        let tmp = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ta-idx-ref-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: tmp, withIntermediateDirectories: true)
+        for name in filenames {
+            try "".write(to: tmp.appendingPathComponent(name), atomically: true, encoding: .utf8)
+        }
+        return tmp
+    }
+
+    @Test("canonicalRef prefers the exact filename over a whitespace-folded one")
+    func canonicalRefExactWins() throws {
+        let nbsp = "111111111111 a\u{00A0}b.md"
+        let plain = "222222222222 a b.md"
+        let archive = try makeArchive([nbsp, "111111111111 a b.md", plain])
+        defer { try? FileManager.default.removeItem(at: archive) }
+        let index = try NoteIndex(archiveDirectory: archive)
+        #expect(index.canonicalRef(for: NoteRef(filename: nbsp)).map { Array($0.filename.unicodeScalars) }
+                == Array(nbsp.unicodeScalars))
+        #expect(index.canonicalRef(for: NoteRef(filename: "111111111111 a b.md"))?.filename == "111111111111 a b.md")
+    }
+
+    @Test("canonicalRef returns nil when several filenames fold to the typed name")
+    func canonicalRefAmbiguous() throws {
+        let archive = try makeArchive(["111111111111 a\u{00A0}b.md", "111111111111 a\u{202F}b.md"])
+        defer { try? FileManager.default.removeItem(at: archive) }
+        let index = try NoteIndex(archiveDirectory: archive)
+        #expect(index.canonicalRef(for: NoteRef(filename: "111111111111 a b.md")) == nil)
+    }
+
+    @Test("canonicalRef returns nil for an unknown filename")
+    func canonicalRefUnknown() throws {
+        let index = try NoteIndex(archiveDirectory: fixtureURL())
+        #expect(index.canonicalRef(for: NoteRef(filename: "999999999999 Missing.md")) == nil)
+    }
 }

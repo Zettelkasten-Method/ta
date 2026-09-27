@@ -7,13 +7,6 @@ Each item is delegated to an implementer subagent; the controller reviews the
 diff and runs `swift test` before committing. Re-evaluate the ordering and
 value of remaining items after each one lands.
 
-## 3. Defect: `ta show` cannot resolve refs containing U+00A0
-
-`ShowEmitter` does a raw `fileExists` on the typed ref. Resolve refs through
-`NoteIndex` instead, comparing with whitespace folded (NBSP == space) and
-canonical-equivalent strings (NFD filenames vs NFC input). Add a fixture or
-temp file with an NBSP in its name.
-
 ## 4. Dedupe YAML helpers, stop re-reading files in `ShowEmitter`
 
 `yamlString` / `yamlFlowList` are duplicated in `SearchYAMLEmitter` and
