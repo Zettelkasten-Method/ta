@@ -7,13 +7,6 @@ Each item is delegated to an implementer subagent; the controller reviews the
 diff and runs `swift test` before committing. Re-evaluate the ordering and
 value of remaining items after each one lands.
 
-## 4. Dedupe YAML helpers, stop re-reading files in `ShowEmitter`
-
-`yamlString` / `yamlFlowList` are duplicated in `SearchYAMLEmitter` and
-`ShowEmitter`. Extract one internal helper. `ShowEmitter` re-reads the file it
-already parsed; use `note.rawText`. Output must stay byte-identical
-(ADR-004, ADR-005); existing emitter tests guard this.
-
 ## 5. Enums for `archiveSource` / `idPatternSource`
 
 `ResolvedConfig` carries two stringly typed source labels. Replace with small

@@ -20,10 +20,7 @@ public struct ShowEmitter {
         var anyResolved = false
         for typedRef in refs {
             guard let ref = resolve(typedRef) else {
-                out += "---\n"
-                out += "ref: \(yamlString(typedRef.filename))\n"
-                out += "error: not-found\n"
-                out += "---\n"
+                out += errorBlock(ref: typedRef, label: "not-found")
                 continue
             }
             let url = archiveDirectory.appendingPathComponent(ref.filename)
@@ -31,25 +28,16 @@ public struct ShowEmitter {
             do {
                 note = try NoteParser.parse(fileURL: url, index: index)
             } catch {
-                out += "---\n"
-                out += "ref: \(yamlString(ref.filename))\n"
-                out += "error: parse-failed\n"
-                out += "---\n"
-                continue
-            }
-            guard let body = try? String(contentsOf: url, encoding: .utf8) else {
-                out += "---\n"
-                out += "ref: \(yamlString(ref.filename))\n"
-                out += "error: read-failed\n"
-                out += "---\n"
+                out += errorBlock(ref: ref, label: "parse-failed")
                 continue
             }
             out += "---\n"
-            out += "ref: \(yamlString(ref.filename))\n"
-            out += "title: \(yamlString(note.title))\n"
-            out += "tags: \(yamlFlowList(note.tags, quoted: false))\n"
-            out += "links: \(yamlFlowList(note.outgoingLinks.map(\.filename), quoted: true))\n"
+            out += "ref: \(YAMLFragment.string(ref.filename))\n"
+            out += "title: \(YAMLFragment.string(note.title))\n"
+            out += "tags: \(YAMLFragment.flowList(note.tags, quoted: false))\n"
+            out += "links: \(YAMLFragment.flowList(note.outgoingLinks.map(\.filename), quoted: true))\n"
             out += "---\n"
+            let body = note.rawText
             out += body
             if !body.hasSuffix("\n") { out += "\n" }
             anyResolved = true
@@ -64,19 +52,11 @@ public struct ShowEmitter {
         return FileManager.default.fileExists(atPath: url.path) ? typedRef : nil
     }
 
+    private func errorBlock(ref: NoteRef, label: String) -> String {
+        "---\nref: \(YAMLFragment.string(ref.filename))\nerror: \(label)\n---\n"
+    }
+
     func emit(refs: [NoteRef]) throws -> String {
         try emitWithStatus(refs: refs).output
-    }
-
-    private func yamlString(_ s: String) -> String {
-        let escaped = s.replacingOccurrences(of: "\\", with: "\\\\")
-                       .replacingOccurrences(of: "\"", with: "\\\"")
-        return "\"\(escaped)\""
-    }
-
-    private func yamlFlowList(_ items: [String], quoted: Bool) -> String {
-        if items.isEmpty { return "[]" }
-        let rendered = items.map { quoted ? yamlString($0) : $0 }
-        return "[" + rendered.joined(separator: ", ") + "]"
     }
 }
