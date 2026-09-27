@@ -5,6 +5,7 @@ struct RipgrepRunner {
     enum Error: Swift.Error, CustomStringConvertible {
         case toolFailed(String, Int32)
         case toolNotFound
+        case patternContainsNewline(String)
 
         var description: String {
             switch self {
@@ -20,6 +21,8 @@ struct RipgrepRunner {
                       macOS:  brew install ripgrep
                       Linux:  apt install ripgrep  (or equivalent)
                     """
+            case .patternContainsNewline(let pattern):
+                return "Search terms cannot span lines: \(pattern.debugDescription)"
             }
         }
     }
@@ -53,41 +56,57 @@ struct RipgrepRunner {
         useRipgrep: Bool
     ) throws -> Set<String> {
         let process = Process()
-        let pipe = Pipe()
+        let stdout = Pipe()
+        let stdin = Pipe()
         process.executableURL = URL(filePath: "/usr/bin/env")
-        process.standardOutput = pipe
+        process.standardInput = stdin
+        process.standardOutput = stdout
         process.standardError = FileHandle(forReadingAtPath: "/dev/null") ?? FileHandle.nullDevice
 
         let rgGlobs = NoteIndex.supportedExtensions.flatMap { ["-g", "*.\($0)"] }
         let grepIncludes = NoteIndex.supportedExtensions.map { "--include=*.\($0)" }
-        let args: [String]
-        if useRipgrep {
-            switch predicate {
-            case .tag(let tag):
-                args = ["rg", "-l", "-i"] + rgGlobs + ["--", "#\(tag)\\b", archive.path]
-            case .phrase(let phrase):
-                args = ["rg", "-l", "-i", "-F"] + rgGlobs + ["--", phrase, archive.path]
-            case .word(let word):
-                args = ["rg", "-l", "-i", "-w", "-F"] + rgGlobs + ["--", word, archive.path]
-            }
-        } else {
-            switch predicate {
-            case .tag(let tag):
-                args = ["grep", "-l", "-r", "-i"] + grepIncludes + ["-E", "#\(tag)([^[:alnum:]_-]|$)", archive.path]
-            case .phrase(let phrase):
-                args = ["grep", "-l", "-r", "-i"] + grepIncludes + ["-F", phrase, archive.path]
-            case .word(let word):
-                args = ["grep", "-l", "-r", "-i"] + grepIncludes + ["-w", "-F", word, archive.path]
-            }
+        let term: String
+        switch predicate {
+        case .tag(let t), .phrase(let t), .word(let t): term = t
         }
-        process.arguments = args
+        let args: [String]
+        let toPattern: (String) -> String
+        switch (useRipgrep, predicate) {
+        case (true, .tag):
+            args = ["rg", "-l", "-i"] + rgGlobs
+            toPattern = { "#\($0)\\b" }
+        case (true, .phrase):
+            args = ["rg", "-l", "-i", "-F"] + rgGlobs
+            toPattern = { $0 }
+        case (true, .word):
+            args = ["rg", "-l", "-i", "-w", "-F"] + rgGlobs
+            toPattern = { $0 }
+        case (false, .tag):
+            args = ["grep", "-l", "-r", "-i"] + grepIncludes + ["-E"]
+            toPattern = { "#\($0)([^[:alnum:]_-]|$)" }
+        case (false, .phrase):
+            args = ["grep", "-l", "-r", "-i"] + grepIncludes + ["-F"]
+            toPattern = { $0 }
+        case (false, .word):
+            args = ["grep", "-l", "-r", "-i"] + grepIncludes + ["-w", "-F"]
+            toPattern = { $0 }
+        }
+        // rg and grep match line by line, so a multi-line term can never match; `-f -` would also split it.
+        guard !term.contains(where: \.isNewline) else { throw Error.patternContainsNewline(term) }
+        let patterns = Self.normalizationVariants(of: term).map(toPattern)
+        // Patterns go through stdin because Process converts argv to NFD, which misses NFC note bodies.
+        process.arguments = args + ["-f", "-", "--", archive.path]
 
         try process.run()
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        let stdinHandle = stdin.fileHandleForWriting
+        try stdinHandle.write(contentsOf: Data(patterns.map { $0 + "\n" }.joined().utf8))
+        try stdinHandle.close()
+        let data = stdout.fileHandleForReading.readDataToEndOfFile()
         process.waitUntilExit()
 
         if process.terminationStatus > 1 {
-            throw Error.toolFailed(args.joined(separator: " "), process.terminationStatus)
+            let command = (process.arguments ?? []).joined(separator: " ")
+            throw Error.toolFailed("\(command) <<< \(patterns)", process.terminationStatus)
         }
         let output = String(data: data, encoding: .utf8) ?? ""
         var set = Set<String>()
@@ -97,6 +116,13 @@ struct RipgrepRunner {
             set.insert(url.lastPathComponent)
         }
         return set
+    }
+
+    /// The NFC and NFD forms of `term`, deduplicated; rg ORs them so either body normalization matches.
+    private static func normalizationVariants(of term: String) -> [String] {
+        let nfc = term.precomposedStringWithCanonicalMapping
+        let nfd = term.decomposedStringWithCanonicalMapping
+        return nfc.utf8.elementsEqual(nfd.utf8) ? [nfc] : [nfc, nfd]
     }
 
     private static func hasTool(_ name: String) -> Bool {

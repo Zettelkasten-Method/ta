@@ -7,15 +7,6 @@ Each item is delegated to an implementer subagent; the controller reviews the
 diff and runs `swift test` before committing. Re-evaluate the ordering and
 value of remaining items after each one lands.
 
-## 2. Defect: non-ASCII queries never reach rg/grep intact
-
-Foundation `Process` converts argv to NFD (file-system representation), so
-`ta search Ständer` sends `Sta\u{308}nder` while note bodies are NFC.
-Verified with a probe binary. Fix: pass the pattern via stdin (`rg -f -`,
-`grep -f -`) so bytes are not normalized, or spawn via `posix_spawn`.
-Add a test with an NFC umlaut body and an NFC query; add one with an NFD
-query too (should also match, decide whether to NFC-normalize the query).
-
 ## 3. Defect: `ta show` cannot resolve refs containing U+00A0
 
 `ShowEmitter` does a raw `fileExists` on the typed ref. Resolve refs through

@@ -37,6 +37,23 @@ struct IntegrationTests {
         #expect(yaml == "[]\n")
     }
 
+    @Test("search for an umlaut phrase finds the NFC note")
+    func umlautPhraseEndToEnd() throws {
+        let tmp = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ta-int-umlaut-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: tmp, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        try Data("Kr\u{E4}fte wirken in den St\u{E4}ndern.".utf8).write(
+            to: tmp.appendingPathComponent("202603090705 Dachstuhl.md"))
+
+        let yaml = try SearchPipeline.run(
+            config: makeFixtureConfig(tmp),
+            predicates: [.phrase("St\u{E4}nder")],
+            depth: 0
+        )
+        #expect(yaml.contains("202603090705 Dachstuhl.md"))
+    }
+
     @Test("finds term inside inline code across .md and .txt notes")
     func inlineCodeAcrossExtensions() throws {
         let tmp = FileManager.default.temporaryDirectory

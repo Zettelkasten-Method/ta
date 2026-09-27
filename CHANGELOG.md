@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`TACore` library target.** The pipeline now lives in a library; `ta` is a thin ArgumentParser front end. No behavior change.
+
+### Fixed
+
+- **Non-ASCII search terms never matched.** Foundation's `Process` hands argv to the child in decomposed (NFD) form, so `ta search Ständer` asked ripgrep for `Sta\u{308}nder` while note bodies are NFC. Patterns now go through stdin, in both NFC and NFD form, so either body normalization matches. A term containing a newline is rejected with a clear error.
+
 ## [0.3.0] - 2026-05-28
 
 Fixes a silent-empty-result failure for suffix-timestamped archives (`Title 202506252102.md`) and makes note ID detection configurable. Adds layered wiki-link resolution and a global `--verbose` flag so pipeline decisions are observable on stderr.

@@ -127,6 +127,67 @@ struct RipgrepRunnerTests {
         #expect(messages.contains { $0.contains("predicate") || $0.contains("match") })
     }
 
+    private func makeUmlautArchive(body: String) throws -> URL {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ta-rg-umlaut-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        try Data(body.utf8).write(to: root.appendingPathComponent("note.md"))
+        try Data("Nothing relevant here".utf8).write(to: root.appendingPathComponent("other.md"))
+        return root
+    }
+
+    // Literals below use \u{...} escapes so NFC and NFD forms survive editor normalization.
+    private static let nfcBody = "Die Kr\u{E4}fte in den St\u{E4}ndern, siehe #gr\u{F6}\u{DF}e"
+
+    @Test("NFC phrase with umlaut finds NFC body")
+    func umlautPhrase() throws {
+        let root = try makeUmlautArchive(body: Self.nfcBody)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let refs = try RipgrepRunner().run(predicates: [.phrase("St\u{E4}nder")], archiveDirectory: root)
+        #expect(Set(refs.map(\.filename)) == ["note.md"])
+    }
+
+    @Test("NFC word with umlaut finds NFC body")
+    func umlautWord() throws {
+        let root = try makeUmlautArchive(body: Self.nfcBody)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let refs = try RipgrepRunner().run(predicates: [.word("Kr\u{E4}fte")], archiveDirectory: root)
+        #expect(Set(refs.map(\.filename)) == ["note.md"])
+    }
+
+    @Test("NFC tag with umlaut and sharp s finds NFC body")
+    func umlautTag() throws {
+        let root = try makeUmlautArchive(body: Self.nfcBody)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let refs = try RipgrepRunner().run(predicates: [.tag("gr\u{F6}\u{DF}e")], archiveDirectory: root)
+        #expect(Set(refs.map(\.filename)) == ["note.md"])
+    }
+
+    @Test("NFD query finds NFC body")
+    func nfdQueryNFCBody() throws {
+        let root = try makeUmlautArchive(body: Self.nfcBody)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let refs = try RipgrepRunner().run(predicates: [.phrase("Sta\u{308}nder")], archiveDirectory: root)
+        #expect(Set(refs.map(\.filename)) == ["note.md"])
+    }
+
+    @Test("NFC query finds NFD body")
+    func nfcQueryNFDBody() throws {
+        let root = try makeUmlautArchive(body: "Die Sta\u{308}ndern")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let refs = try RipgrepRunner().run(predicates: [.phrase("St\u{E4}nder")], archiveDirectory: root)
+        #expect(Set(refs.map(\.filename)) == ["note.md"])
+    }
+
+    @Test("pattern containing a newline is rejected")
+    func newlineRejected() throws {
+        let root = try makeUmlautArchive(body: Self.nfcBody)
+        defer { try? FileManager.default.removeItem(at: root) }
+        #expect(throws: RipgrepRunner.Error.self) {
+            try RipgrepRunner().run(predicates: [.phrase("Die\nnote")], archiveDirectory: root)
+        }
+    }
+
     @Test("zero results are fine")
     func zero() throws {
         let root = try makeTempArchive()
