@@ -28,42 +28,41 @@ struct StructuralFilter {
                 logger.log("filter: skip \(ref.filename) (parse error)")
                 continue
             }
-            guard let hitOffset = firstPassingOffset(note: note, predicates: predicates) else {
+            guard let hitIndex = firstPassingIndex(note: note, predicates: predicates) else {
                 logger.log("filter: reject \(ref.filename) (predicates not satisfied)")
                 continue
             }
-            let snippet = Self.snippet(from: note.rawText, around: hitOffset, window: snippetWindow)
+            let snippet = Self.snippet(from: note.rawText, around: hitIndex, window: snippetWindow)
             hits.append(SearchHit(note: note, depth: 0, via: nil, snippet: snippet))
         }
         logger.log("filter: \(candidates.count) candidates in, \(hits.count) verified")
         return hits
     }
 
-    private func firstPassingOffset(
+    private func firstPassingIndex(
         note: ParsedNote,
         predicates: [SearchPredicate]
-    ) -> Int? {
-        var firstHit: Int? = nil
+    ) -> String.Index? {
+        var firstHit: String.Index? = nil
+        func record(_ index: String.Index) {
+            firstHit = firstHit.map { min($0, index) } ?? index
+        }
         for predicate in predicates {
             switch predicate {
             case .tag(let tag):
                 guard note.tags.contains(where: { $0.caseInsensitiveCompare(tag) == .orderedSame }) else { return nil }
-                let needle = "#\(tag)"
-                if let range = note.rawText.range(of: needle, options: .caseInsensitive) {
-                    let offset = note.rawText.distance(from: note.rawText.startIndex, to: range.lowerBound)
-                    firstHit = firstHit.map { min($0, offset) } ?? offset
+                if let range = note.rawText.range(of: "#\(tag)", options: .caseInsensitive) {
+                    record(range.lowerBound)
                 }
             case .phrase(let phrase):
                 guard let range = note.rawText.range(of: phrase, options: .caseInsensitive) else { return nil }
-                let offset = note.rawText.distance(from: note.rawText.startIndex, to: range.lowerBound)
-                firstHit = firstHit.map { min($0, offset) } ?? offset
+                record(range.lowerBound)
             case .word(let word):
                 guard let range = Self.wordMatch(word: word, in: note.rawText) else { return nil }
-                let offset = note.rawText.distance(from: note.rawText.startIndex, to: range.lowerBound)
-                firstHit = firstHit.map { min($0, offset) } ?? offset
+                record(range.lowerBound)
             }
         }
-        return firstHit ?? 0
+        return firstHit ?? note.rawText.startIndex
     }
 
     private static func wordMatch(word: String, in text: String) -> Range<String.Index>? {
@@ -75,13 +74,10 @@ struct StructuralFilter {
         return Range(match.range, in: text)
     }
 
-    static func snippet(from text: String, around offset: Int, window: Int) -> String {
-        let clampedOffset = max(0, min(offset, text.count))
-        let start = max(0, clampedOffset - window / 2)
-        let end = min(text.count, start + window)
-        let startIdx = text.index(text.startIndex, offsetBy: start)
-        let endIdx = text.index(text.startIndex, offsetBy: end)
-        return String(text[startIdx..<endIdx])
+    static func snippet(from text: String, around hit: String.Index, window: Int) -> String {
+        let start = text.index(hit, offsetBy: -(window / 2), limitedBy: text.startIndex) ?? text.startIndex
+        let end = text.index(start, offsetBy: window, limitedBy: text.endIndex) ?? text.endIndex
+        return String(text[start..<end])
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .replacingOccurrences(of: "\n", with: " ")
     }

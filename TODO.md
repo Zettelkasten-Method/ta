@@ -7,12 +7,6 @@ Each item is delegated to an implementer subagent; the controller reviews the
 diff and runs `swift test` before committing. Re-evaluate the ordering and
 value of remaining items after each one lands.
 
-## 6. `String.Index` instead of integer offsets in `StructuralFilter`
-
-`firstPassingOffset` and `snippet` convert to and from integer offsets, each
-an O(n) walk per predicate per candidate. Carry `String.Index` through and
-slice directly. Snippet output must not change.
-
 ## 7. Drop the `which` probe in `RipgrepRunner`
 
 `hasTool` spawns an extra process per search. `/usr/bin/env rg` exits 127

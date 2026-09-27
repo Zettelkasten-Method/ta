@@ -109,6 +109,34 @@ struct StructuralFilterTests {
         #expect(tagHits.count == 1)
     }
 
+    @Test("snippet window is measured in characters and clamped at both ends of a long text")
+    func snippetClampsAtTextEdges() throws {
+        let tmp = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ta-sf-snip-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: tmp, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        let nearStart = tmp.appendingPathComponent("111111111111 near start.md")
+        try ("a👍🏽 needle then " + String(repeating: "filler ", count: 50))
+            .write(to: nearStart, atomically: true, encoding: .utf8)
+        let nearEnd = tmp.appendingPathComponent("222222222222 near end.md")
+        try (String(repeating: "abcde ", count: 50) + "0123456789 tail")
+            .write(to: nearEnd, atomically: true, encoding: .utf8)
+        let index = try NoteIndex(archiveDirectory: tmp)
+        let filter = StructuralFilter(index: index, archiveDirectory: tmp, snippetWindow: 10)
+
+        let startHits = try filter.verify(
+            candidates: [NoteRef(filename: nearStart.lastPathComponent)],
+            predicates: [.phrase("needle")]
+        )
+        #expect(startHits.map(\.snippet) == ["a👍🏽 needle"])
+
+        let endHits = try filter.verify(
+            candidates: [NoteRef(filename: nearEnd.lastPathComponent)],
+            predicates: [.phrase("tail")]
+        )
+        #expect(endHits.map(\.snippet) == ["6789 tail"])
+    }
+
     @Test("verbose logger captures verification summary")
     func verboseLogging() throws {
         var messages: [String] = []
