@@ -7,14 +7,6 @@ Each item is delegated to an implementer subagent; the controller reviews the
 diff and runs `swift test` before committing. Re-evaluate the ordering and
 value of remaining items after each one lands.
 
-## 9. Swift `Regex` where it fits
-
-`WikiLinkRegex`, `IDPattern`, and the `\b` word match in `StructuralFilter`
-can use Swift `Regex`. Not `HashtagRegex`: Swift 6.3 `Regex` still rejects
-lookbehind (verified), and ADR-002 pins that pattern. Behavior must stay
-identical; the regex tests guard this. Re-evaluate: skip if the gain is only
-cosmetic.
-
 ## 10. Modern Foundation API
 
 `URL(filePath:)` / `appending(path:)` everywhere (already mixed),
