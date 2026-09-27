@@ -107,21 +107,21 @@ struct NoteIndexTests {
 
     @Test("verbose logger captures file scan summary")
     func verboseFileScan() throws {
-        var messages: [String] = []
-        let logger = Logger(enabled: true) { messages.append($0) }
+        let log = LogCapture()
+        let logger = log.logger()
         _ = try NoteIndex(archiveDirectory: fixtureURL(), logger: logger)
-        #expect(messages.contains { $0.contains("skip") && $0.contains("Unknown Id Note.md") })
-        #expect(messages.contains { $0.contains("index:") })
+        #expect(log.messages.contains { $0.contains("skip") && $0.contains("Unknown Id Note.md") })
+        #expect(log.messages.contains { $0.contains("index:") })
     }
 
     @Test("verbose logger captures resolution method")
     func verboseResolution() throws {
-        var messages: [String] = []
-        let logger = Logger(enabled: true) { messages.append($0) }
+        let log = LogCapture()
+        let logger = log.logger()
         let index = try NoteIndex(archiveDirectory: fixtureURL(), logger: logger)
-        messages.removeAll()
+        log.removeAll()
         _ = index.resolve(wikilinkText: "202503091430")
-        #expect(messages.contains { $0.contains("resolve") })
+        #expect(log.messages.contains { $0.contains("resolve") })
     }
 
     @Test("indexes .txt files alongside .md")

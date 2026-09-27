@@ -7,16 +7,6 @@ Each item is delegated to an implementer subagent; the controller reviews the
 diff and runs `swift test` before committing. Re-evaluate the ordering and
 value of remaining items after each one lands.
 
-## 7. Drop the `which` probe in `RipgrepRunner`
-
-`hasTool` spawns an extra process per search. `/usr/bin/env rg` exits 127
-when rg is missing; fall back to grep on that status instead.
-
-## 8. `Logger`: real `Sendable`
-
-Make `sink` `@Sendable`, remove `@unchecked`, delete the pointless
-`@usableFromInline` on `defaultSink`.
-
 ## 9. Swift `Regex` where it fits
 
 `WikiLinkRegex`, `IDPattern`, and the `\b` word match in `StructuralFilter`

@@ -117,14 +117,14 @@ struct RipgrepRunnerTests {
         try "Hello world #test".write(
             to: tmp.appendingPathComponent("111111111111 note.md"),
             atomically: true, encoding: .utf8)
-        var messages: [String] = []
-        let logger = Logger(enabled: true) { messages.append($0) }
+        let log = LogCapture()
+        let logger = log.logger()
         _ = try RipgrepRunner().run(
             predicates: [.tag("test")],
             archiveDirectory: tmp,
             logger: logger
         )
-        #expect(messages.contains { $0.contains("predicate") || $0.contains("match") })
+        #expect(log.messages.contains { $0.contains("predicate") || $0.contains("match") })
     }
 
     private func makeUmlautArchive(body: String) throws -> URL {
@@ -185,6 +185,32 @@ struct RipgrepRunnerTests {
         defer { try? FileManager.default.removeItem(at: root) }
         #expect(throws: RipgrepRunner.Error.self) {
             try RipgrepRunner().run(predicates: [.phrase("Die\nnote")], archiveDirectory: root)
+        }
+    }
+
+    @Test("falls back to grep when rg is not on PATH", arguments: [
+        (SearchPredicate.tag("learning"), Set(["alpha.md", "gamma.md"])),
+        (.phrase("Bar has"), Set(["beta.md"])),
+        (.word("foo"), Set(["alpha.md"])),
+    ])
+    func grepFallback(predicate: SearchPredicate, expected: Set<String>) throws {
+        let root = try makeTempArchive()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let refs = try RipgrepRunner(environment: ["PATH": "/usr/bin:/bin"])
+            .run(predicates: [predicate], archiveDirectory: root)
+        #expect(Set(refs.map(\.filename)) == expected)
+    }
+
+    @Test("neither rg nor grep on PATH throws toolNotFound")
+    func toolNotFound() throws {
+        let root = try makeTempArchive()
+        defer { try? FileManager.default.removeItem(at: root) }
+        #expect {
+            try RipgrepRunner(environment: ["PATH": "/nonexistent"])
+                .run(predicates: [.phrase("Foo")], archiveDirectory: root)
+        } throws: { error in
+            guard case RipgrepRunner.Error.toolNotFound = error else { return false }
+            return true
         }
     }
 

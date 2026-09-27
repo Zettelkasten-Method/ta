@@ -45,8 +45,8 @@ struct SearchCommandTests {
 
     @Test("pipeline accepts config and logger")
     func pipelineWithConfigAndLogger() throws {
-        var messages: [String] = []
-        let logger = Logger(enabled: true) { messages.append($0) }
+        let log = LogCapture()
+        let logger = log.logger()
         let config = makeFixtureConfig(fixtureURL())
         let yaml = try SearchPipeline.run(
             config: config,
@@ -55,13 +55,13 @@ struct SearchCommandTests {
             logger: logger
         )
         #expect(yaml.contains("Mental Models"))
-        #expect(!messages.isEmpty)
+        #expect(!log.messages.isEmpty)
     }
 
     @Test("verbose logger captures config echo")
     func verboseConfigEcho() throws {
-        var messages: [String] = []
-        let logger = Logger(enabled: true) { messages.append($0) }
+        let log = LogCapture()
+        let logger = log.logger()
         let config = makeFixtureConfig(fixtureURL())
         _ = try SearchPipeline.run(
             config: config,
@@ -69,7 +69,7 @@ struct SearchCommandTests {
             depth: 0,
             logger: logger
         )
-        #expect(messages.contains { $0.contains("archive:") })
-        #expect(messages.contains { $0.contains("id_pattern:") })
+        #expect(log.messages.contains { $0.contains("archive:") })
+        #expect(log.messages.contains { $0.contains("id_pattern:") })
     }
 }

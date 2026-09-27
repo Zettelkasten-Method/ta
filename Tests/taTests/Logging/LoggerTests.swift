@@ -6,19 +6,19 @@ import Foundation
 struct LoggerTests {
     @Test("enabled logger delivers messages to sink")
     func enabled() {
-        var captured: [String] = []
-        let logger = Logger(enabled: true) { captured.append($0) }
+        let log = LogCapture()
+        let logger = log.logger()
         logger.log("hello")
         logger.log("world")
-        #expect(captured == ["[ta] hello", "[ta] world"])
+        #expect(log.messages == ["[ta] hello", "[ta] world"])
     }
 
     @Test("disabled logger suppresses messages")
     func disabled() {
-        var captured: [String] = []
-        let logger = Logger(enabled: false) { captured.append($0) }
+        let log = LogCapture()
+        let logger = log.logger(enabled: false)
         logger.log("should not appear")
-        #expect(captured.isEmpty)
+        #expect(log.messages.isEmpty)
     }
 
     @Test("quiet logger is disabled")
