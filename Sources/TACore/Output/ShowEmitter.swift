@@ -54,8 +54,4 @@ public struct ShowEmitter {
     private func errorBlock(ref: NoteRef, label: String) -> String {
         "---\nref: \(YAMLFragment.string(ref.filename))\nerror: \(label)\n---\n"
     }
-
-    func emit(refs: [NoteRef]) throws -> String {
-        try emitWithStatus(refs: refs).output
-    }
 }

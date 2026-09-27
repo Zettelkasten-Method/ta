@@ -27,14 +27,9 @@ enum NoteParser {
         let linkTargets = WikiLinkRegex.extractTargets(from: nonCodeText)
 
         var resolved: [NoteRef] = []
-        var unresolved: [String] = []
         for target in linkTargets {
-            if let ref = index.resolve(wikilinkText: target) {
-                if !resolved.contains(ref) {
-                    resolved.append(ref)
-                }
-            } else {
-                unresolved.append(target)
+            if let ref = index.resolve(wikilinkText: target), !resolved.contains(ref) {
+                resolved.append(ref)
             }
         }
 
@@ -43,9 +38,7 @@ enum NoteParser {
             title: title,
             timestampID: primaryID,
             outgoingLinks: resolved,
-            unresolvedLinkText: unresolved,
             tags: tags,
-            nonCodeText: nonCodeText,
             rawText: source
         )
     }

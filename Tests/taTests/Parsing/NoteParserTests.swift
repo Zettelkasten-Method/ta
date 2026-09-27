@@ -49,13 +49,12 @@ struct NoteParserTests {
         #expect(note.tags == ["Ernährung", "日本語"])
     }
 
-    @Test("unresolved wiki-link captured in unresolvedLinkText")
+    @Test("unresolved wiki-link yields no outgoing link")
     func unresolved() throws {
         let index = try NoteIndex(archiveDirectory: fixtureURL())
         let url = fixtureURL().appendingPathComponent("202503091441 Unresolved Link.md")
         let note = try NoteParser.parse(fileURL: url, index: index)
         #expect(note.outgoingLinks.isEmpty)
-        #expect(note.unresolvedLinkText == ["999999999999"])
     }
 
     @Test("parses suffix-timestamped note")

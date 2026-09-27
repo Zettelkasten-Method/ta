@@ -13,7 +13,7 @@ struct ShowEmitterTests {
     func existing() throws {
         let index = try NoteIndex(archiveDirectory: fixtureURL())
         let emitter = ShowEmitter(index: index, archiveDirectory: fixtureURL())
-        let out = try emitter.emit(refs: [NoteRef(filename: "202503091430 Mental Models.md")])
+        let out = try emitter.emitWithStatus(refs: [NoteRef(filename: "202503091430 Mental Models.md")]).output
         #expect(out.hasPrefix("---\n"))
         #expect(out.contains("ref: \"202503091430 Mental Models.md\""))
         #expect(out.contains("title: \"Mental Models\""))
@@ -26,7 +26,7 @@ struct ShowEmitterTests {
     func missing() throws {
         let index = try NoteIndex(archiveDirectory: fixtureURL())
         let emitter = ShowEmitter(index: index, archiveDirectory: fixtureURL())
-        let out = try emitter.emit(refs: [NoteRef(filename: "999999999999 Missing.md")])
+        let out = try emitter.emitWithStatus(refs: [NoteRef(filename: "999999999999 Missing.md")]).output
         #expect(out.contains("ref: \"999999999999 Missing.md\""))
         #expect(out.contains("error: not-found"))
     }
@@ -35,10 +35,10 @@ struct ShowEmitterTests {
     func multiple() throws {
         let index = try NoteIndex(archiveDirectory: fixtureURL())
         let emitter = ShowEmitter(index: index, archiveDirectory: fixtureURL())
-        let out = try emitter.emit(refs: [
+        let out = try emitter.emitWithStatus(refs: [
             NoteRef(filename: "202503091430 Mental Models.md"),
             NoteRef(filename: "202503091431 Second Order Thinking.md"),
-        ])
+        ]).output
         #expect(out.contains("# Mental Models"))
         #expect(out.contains("# Second Order Thinking"))
         // Two frontmatter opening fences.

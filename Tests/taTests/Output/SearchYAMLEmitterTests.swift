@@ -16,9 +16,7 @@ struct SearchYAMLEmitterTests {
             title: "Mental Models",
             timestampID: "202503091430",
             outgoingLinks: [NoteRef(filename: "202503091431 Second Order Thinking.md")],
-            unresolvedLinkText: [],
             tags: ["learning", "thinking"],
-            nonCodeText: "",
             rawText: ""
         )
         let hit = SearchHit(note: note, depth: 0, via: nil, snippet: "second-order thinking")
@@ -39,9 +37,7 @@ struct SearchYAMLEmitterTests {
             title: "Second Order Thinking",
             timestampID: "202503091431",
             outgoingLinks: [],
-            unresolvedLinkText: [],
             tags: ["thinking"],
-            nonCodeText: "",
             rawText: ""
         )
         let hit = SearchHit(

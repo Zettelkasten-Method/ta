@@ -3,7 +3,6 @@ import Foundation
 struct NoteIndex: Sendable {
     static let supportedExtensions: [String] = ["md", "txt"]
 
-    let archiveDirectory: URL
     let idPattern: IDPattern
     let logger: Logger
     private let byTimestampID: [String: [NoteRef]]
@@ -11,10 +10,7 @@ struct NoteIndex: Sendable {
     private let stemsByFilename: [String: String]
     private let filenamesByFoldedFilename: [String: [String]]
 
-    var count: Int { byTimestampID.values.reduce(0) { $0 + $1.count } }
-
     init(archiveDirectory: URL, idPattern: IDPattern = .default, logger: Logger = .quiet) throws {
-        self.archiveDirectory = archiveDirectory
         self.idPattern = idPattern
         self.logger = logger
         let fm = FileManager.default

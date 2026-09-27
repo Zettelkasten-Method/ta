@@ -14,7 +14,7 @@ struct ArchiveResolverTests {
             environment: ["TA_DIR": "/nonexistent-env"],
             configFileReader: { _ in "archive: /nonexistent-config\n" }
         )
-        let resolved = try resolver.resolve()
+        let resolved = try resolver.resolveConfig().archiveDirectory
         #expect(resolved.path == tmp.path)
     }
 
@@ -27,7 +27,7 @@ struct ArchiveResolverTests {
             environment: ["TA_DIR": tmp.path],
             configFileReader: { _ in nil }
         )
-        let resolved = try resolver.resolve()
+        let resolved = try resolver.resolveConfig().archiveDirectory
         #expect(resolved.path == tmp.path)
     }
 
@@ -40,7 +40,7 @@ struct ArchiveResolverTests {
             environment: [:],
             configFileReader: { _ in "archive: \(tmp.path)\n" }
         )
-        let resolved = try resolver.resolve()
+        let resolved = try resolver.resolveConfig().archiveDirectory
         #expect(resolved.path == tmp.path)
     }
 
@@ -52,7 +52,7 @@ struct ArchiveResolverTests {
             configFileReader: { _ in nil }
         )
         #expect(throws: ArchiveResolver.Error.self) {
-            _ = try resolver.resolve()
+            _ = try resolver.resolveConfig()
         }
     }
 

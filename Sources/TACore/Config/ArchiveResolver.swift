@@ -40,10 +40,6 @@ public struct ArchiveResolver {
         self.configFileReader = configFileReader
     }
 
-    func resolve() throws -> URL {
-        try resolveConfig().archiveDirectory
-    }
-
     public func resolveConfig() throws -> ResolvedConfig {
         let configPath = Self.defaultConfigPath()
         let configContents = configFileReader(configPath)
