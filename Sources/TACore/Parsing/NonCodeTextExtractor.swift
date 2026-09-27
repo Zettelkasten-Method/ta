@@ -3,11 +3,9 @@ import Markdown
 
 enum NonCodeTextExtractor {
     static func extract(from document: Document) -> String {
-        var buffer = ""
         var walker = Walker(buffer: "")
         walker.visit(document)
-        buffer = walker.buffer
-        return buffer
+        return walker.buffer
     }
 
     private struct Walker: MarkupWalker {

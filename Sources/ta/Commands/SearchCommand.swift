@@ -39,6 +39,12 @@ struct SearchCommand: ParsableCommand {
     @Argument(help: "Optional implicit phrase predicate.")
     var positionalPhrase: String?
 
+    func validate() throws {
+        guard (0...10).contains(depth) else {
+            throw ValidationError("--depth must be between 0 and 10.")
+        }
+    }
+
     func run() throws {
         let config = try ArchiveResolver(flagValue: archive).resolveConfig()
         let logger = Logger(enabled: globalOptions.verbose)

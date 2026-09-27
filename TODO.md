@@ -7,20 +7,6 @@ Each item is delegated to an implementer subagent; the controller reviews the
 diff and runs `swift test` before committing. Re-evaluate the ordering and
 value of remaining items after each one lands.
 
-## 11. Delete dead API
-
-`ArchiveResolver.resolve()`, `ShowEmitter.emit(refs:)`, and
-`ParsedNote.nonCodeText` / `unresolvedLinkText` are test-only. Delete them
-and adjust tests to assert through the public path, or justify keeping each.
-
-## 12. Small tidies
-
-- `NonCodeTextExtractor.extract` copies the buffer for no reason.
-- `GraphExpander` frontier tuple wants a named struct; `currentDepth` from
-  `first?.depth` is fragile.
-- `--depth` above 10 silently clamps; reject via ArgumentParser `validate()`
-  with a clear message, or document the clamp. Decide.
-
 ## 13. Docs drift
 
 `docs/README.md` ADR table lacks ADR-006. Check CHANGELOG `[Unreleased]` has

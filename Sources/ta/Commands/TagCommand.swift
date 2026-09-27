@@ -26,6 +26,12 @@ struct TagCommand: ParsableCommand {
     @Option(name: .customLong("depth"), help: "Graph expansion depth (0–10, default 3).")
     var depth: Int = 3
 
+    func validate() throws {
+        guard (0...10).contains(depth) else {
+            throw ValidationError("--depth must be between 0 and 10.")
+        }
+    }
+
     func run() throws {
         let config = try ArchiveResolver(flagValue: archive).resolveConfig()
         let logger = Logger(enabled: globalOptions.verbose)

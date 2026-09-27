@@ -27,23 +27,23 @@ struct GraphExpander {
             }
         }
 
-        var frontier: [(ref: NoteRef, depth: Int, via: NoteRef)] = []
+        var frontier: [FrontierEntry] = []
         for hit in directHits {
             for outgoing in hit.note.outgoingLinks {
                 if seen[outgoing] == nil {
-                    frontier.append((outgoing, 1, hit.note.ref))
+                    frontier.append(FrontierEntry(ref: outgoing, via: hit.note.ref))
                 }
             }
         }
 
+        var level = 1
         while !frontier.isEmpty {
             let nextFrontier = frontier
             frontier = []
-            let currentDepth = nextFrontier.first?.depth ?? 0
-            logger.log("expand: depth \(currentDepth), frontier \(nextFrontier.count) candidates")
+            logger.log("expand: depth \(level), frontier \(nextFrontier.count) candidates")
             for entry in nextFrontier {
                 if seen[entry.ref] != nil { continue }
-                if entry.depth > clamped { continue }
+                if level > clamped { continue }
                 let url = archiveDirectory.appending(path: entry.ref.filename)
                 let note: ParsedNote
                 do {
@@ -51,18 +51,24 @@ struct GraphExpander {
                 } catch {
                     continue
                 }
-                let hit = SearchHit(note: note, depth: entry.depth, via: entry.via, snippet: nil)
+                let hit = SearchHit(note: note, depth: level, via: entry.via, snippet: nil)
                 seen[entry.ref] = hit
                 order.append(entry.ref)
-                if entry.depth + 1 <= clamped {
+                if level + 1 <= clamped {
                     for outgoing in note.outgoingLinks where seen[outgoing] == nil {
-                        frontier.append((outgoing, entry.depth + 1, entry.ref))
+                        frontier.append(FrontierEntry(ref: outgoing, via: entry.ref))
                     }
                 }
             }
+            level += 1
         }
 
         logger.log("expand: \(order.count) total (\(directHits.count) direct + \(order.count - directHits.count) expanded)")
         return order.compactMap { seen[$0] }
+    }
+
+    private struct FrontierEntry {
+        let ref: NoteRef
+        let via: NoteRef
     }
 }
