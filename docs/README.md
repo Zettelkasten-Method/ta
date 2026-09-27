@@ -30,6 +30,7 @@ There are no PRDs, SDDs, or guides yet — the prototype is small enough to live
 | [ADR-003](adrs/ADR-003--CLI-Predicate-Surface.md) | CLI predicate surface — flag-based AND composition (`--tag`, `--phrase`, `--word`) |
 | [ADR-004](adrs/ADR-004--Search-Output-Flat-YAML.md) | `ta search` / `ta tag` output as flat YAML with `depth` and `via` metadata |
 | [ADR-005](adrs/ADR-005--Show-Output-Frontmatter-And-Raw-Markdown.md) | `ta show` output as YAML frontmatter + raw markdown body |
+| [ADR-006](adrs/ADR-006--Note-ID-Detection.md) | Note ID detection via configurable unanchored regex (default `\d{12}`) |
 
 ## Document conventions
 

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`--depth` outside 0–10 is rejected** with a validation error instead of silently clamping to 10.
 - **`TACore` library target.** The pipeline now lives in a library; `ta` is a thin ArgumentParser front end. No behavior change.
+- **Fewer processes per search.** The `which rg` probe is gone; `ta` runs rg and falls back to grep when rg exits 127. If neither tool is on `PATH` the error now says so.
 
 ### Fixed
 

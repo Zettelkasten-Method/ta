@@ -7,11 +7,6 @@ Each item is delegated to an implementer subagent; the controller reviews the
 diff and runs `swift test` before committing. Re-evaluate the ordering and
 value of remaining items after each one lands.
 
-## 13. Docs drift
-
-`docs/README.md` ADR table lacks ADR-006. Check CHANGELOG `[Unreleased]` has
-an entry for every item above.
-
 ## 14. Tag matching: substring instead of exact
 
 The GUI app matches tags by substring (`#dach` finds `#dachstuhl`); `ta`
