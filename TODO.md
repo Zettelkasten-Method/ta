@@ -7,18 +7,6 @@ Each item is delegated to an implementer subagent; the controller reviews the
 diff and runs `swift test` before committing. Re-evaluate the ordering and
 value of remaining items after each one lands.
 
-## 1. Split into `TACore` library + thin `ta` executable
-
-- New target `TACore` holds everything except `TheArchiveCLI.swift` and the
-  `Commands/` directory. Executable target `ta` depends on it.
-- Tests import `TACore` (`@testable` where private access is needed) and stop
-  importing the executable.
-- Drop `public` modifiers that only existed to reach code from tests; keep
-  `public` only for what `ta` itself needs across the module boundary.
-- Move `RipgrepRunner.Predicate` to `Model/SearchPredicate.swift` as part of
-  the split, since the executable needs it and it is search vocabulary, not a
-  ripgrep detail.
-
 ## 2. Defect: non-ASCII queries never reach rg/grep intact
 
 Foundation `Process` converts argv to NFD (file-system representation), so
