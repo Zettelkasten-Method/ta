@@ -24,7 +24,7 @@ struct SearchCommand: ParsableCommand {
     @Option(name: .customLong("archive"), help: "Path to the Zettelkasten archive.")
     var archive: String?
 
-    @Option(name: .customLong("tag"), parsing: .singleValue, help: "Require #TAG (repeatable).")
+    @Option(name: .customLong("tag"), parsing: .singleValue, help: "Require the whole hashtag #TAG (repeatable). For prefix matches search \"#TAG\" as a phrase.")
     var tags: [String] = []
 
     @Option(name: .customLong("phrase"), parsing: .singleValue, help: "Require literal phrase (repeatable).")

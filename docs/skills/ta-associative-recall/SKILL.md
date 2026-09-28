@@ -23,7 +23,7 @@ User's vibe query
 
 Generate 5–8 query variants total. Cover at least two of these three axes:
 
-**Tag axis (2–4 variants).** Candidate tag names. Include variations the user might actually use:
+**Tag axis (2–4 variants).** Candidate tag names, probed as text (`ta search "#stem"`) rather than `--tag`, because `--tag` only matches whole tags and a guessed stem like `#dach` should also surface `#dachstuhl`. Include variations the user might actually use:
 
 - singular / plural (`#book` vs `#books`)
 - hyphens / no hyphen (`#mental-models` vs `#mentalmodels`)
@@ -41,9 +41,9 @@ Run each variant as a separate `ta` invocation with `--depth 0`. Depth 0 gives c
 Empty-result queries are cheap and expected — fan out aggressively.
 
 ```bash
-ta search --tag procrastination --depth 0
-ta search --tag creativity --depth 0
-ta search --tag flow --depth 0
+ta search "#procrastination" --depth 0
+ta search "#creativ" --depth 0
+ta search "#flow" --depth 0
 ta search --phrase "creative block" --depth 0
 ta search --word resistance --depth 0
 ```
@@ -98,9 +98,9 @@ User: *"I remember writing something about how first impressions affect judgment
 
 Variants:
 
-- `--tag bias` (tag guess)
-- `--tag anchoring` (tag guess, common bias term)
-- `--tag cognition` (tag guess)
+- `"#bias"` (tag guess, as text so `#biases` and `#bias-anchoring` hit too)
+- `"#anchor"` (tag guess, common bias term)
+- `"#cogni"` (tag guess)
 - `--phrase "first impression"` (phrase)
 - `--word Urteil` (German for "judgment")
 - `--word anchoring` (word)

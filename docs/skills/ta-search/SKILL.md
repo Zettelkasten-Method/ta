@@ -10,7 +10,7 @@ description: Use when the user asks to find, search, or look up a note in their 
 ## The three subcommands
 
 - `ta search` — AND-combined predicates, YAML list output.
-- `ta tag NAME` — shortcut for `search --tag NAME`.
+- `ta tag NAME` — shortcut for `search --tag NAME`. Exact tag name only; use it as a filter once you know the tag.
 - `ta show REF [REF ...]` — print frontmatter + raw body per ref.
 
 If no archive is configured, the CLI tells you how: pass `--archive PATH` on the subcommand, set `TA_DIR`, or write `archive: /path` to `~/.config/ta/config.yaml`.
@@ -19,10 +19,12 @@ If no archive is configured, the CLI tells you how: pass `--archive PATH` on the
 
 All repeatable. All AND-combined.
 
-- `--tag NAME` — requires `#NAME` in non-code text. Use for user-curated vocabulary. Supply the name without the leading `#`.
-- `--phrase "TEXT"` — requires the literal string in non-code text. Case-sensitive substring.
+- `--tag NAME` — requires the exact hashtag `#NAME` (case-insensitive, whole tag). `--tag dach` does not match `#dachstuhl`. Supply the name without the leading `#`. Use it as a filter when you already know the tag from earlier output.
+- `--phrase "TEXT"` — requires the literal string in non-code text. Case-insensitive substring.
 - `--word WORD` — requires whole-word match. Better than `--phrase` for a single distinctive term because it respects word boundaries.
 - Positional argument — treated as `--phrase`.
+
+To discover tags, search for the hashtag as text: `ta search "#dach"` matches `#dach`, `#dachstuhl`, and `#dach-konstruktion` anywhere in the note, the same way The Archive's own search does. Read the `tags:` field of the results to learn the exact names, then narrow with `--tag`.
 
 Depth: `--depth N` expands results along wiki-link edges by N hops (default 3, hard cap 10). Use `--depth 0` when you want direct hits only.
 
@@ -44,7 +46,8 @@ Empty result set is the literal `[]` on a single line.
 
 | User intent | Recommended query |
 |---|---|
-| Notes with a specific hashtag | `ta tag NAME` |
+| Notes with a hashtag you are guessing at | `ta search "#PREFIX" --depth 0`, then read `tags:` |
+| Notes with a hashtag you know exactly | `ta tag NAME` |
 | Notes with two hashtags at once | `ta search --tag A --tag B` |
 | Notes mentioning a distinctive single word | `ta search --word TERM` |
 | Notes containing a specific phrase | `ta search --phrase "TEXT"` or `ta search "TEXT"` |
@@ -54,7 +57,7 @@ Empty result set is the literal `[]` on a single line.
 ## Reducing noise
 
 - Start with `--depth 0` when you want a focused result set.
-- Prefer `--tag` over `--phrase` when the user named a known hashtag — tags are user-curated signal.
+- Prefer `--tag` over `--phrase` when the user named a known hashtag — tags are user-curated signal. When the tag is a guess, search `"#guess"` first; `--tag` only matches whole tags and silently returns `[]` on a near miss.
 - Combine predicates (AND) to narrow: `ta search --tag learning --word inversion`.
 - If zero results, try widening: drop a predicate, or switch `--phrase "second-order"` → `--word second`.
 
@@ -73,4 +76,5 @@ Refs are the full filenames from `search` / `tag` output's `ref:` field. They in
 - Don't invent refs. Always get them from `search` / `tag` output first.
 - Don't strip `.md` from refs — `show` expects the full filename.
 - Don't pass `#` as part of `--tag` — the leading `#` is implied.
+- Don't treat an empty `--tag` result as "no such notes" — retry as `ta search "#NAME"` to catch longer tags that start the same way.
 - Don't use this skill for fuzzy recall ("that thing I wrote about..."). Delegate to `ta-associative-recall`.

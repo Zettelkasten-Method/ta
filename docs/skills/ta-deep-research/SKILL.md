@@ -36,6 +36,8 @@ Read the body. Note outgoing `[[wiki-links]]` and `#tags`.
 ta tag learning --depth 2
 ```
 
+If that returns `[]`, the user may have named a stem rather than the exact tag. Run `ta search "#learning" --depth 0`, read the `tags:` field, and retry `ta tag` with the exact name.
+
 **Concept only** — user described a topic without naming a ref or tag. Delegate to `ta-associative-recall` first to surface 1–3 seed refs, then continue here.
 
 ## Step 2 — Expand the graph

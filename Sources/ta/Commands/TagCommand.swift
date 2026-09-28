@@ -8,6 +8,8 @@ struct TagCommand: ParsableCommand {
         abstract: "Search for notes carrying a specific hashtag (convenience for 'search --tag').",
         discussion: """
         Pass the tag name without the leading '#'. Equivalent to 'search --tag NAME'.
+        Matches the whole tag only. To find tags by prefix, search the hashtag as
+        text instead: ta search "#NAME"
 
         Examples:
           ta tag thinking

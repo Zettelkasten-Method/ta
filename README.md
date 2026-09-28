@@ -36,6 +36,12 @@ Emits a flat YAML list of direct hits plus their outgoing-link neighborhood up t
 ta tag thinking --depth 2
 ```
 
+`--tag` and `ta tag` match the whole tag name, so `thinking` does not find `#thinking-tools`. To find tags by prefix, search the hashtag as text, which behaves like The Archive's own search:
+
+```bash
+ta search "#think" --depth 0
+```
+
 ### Show a note
 
 ```bash
