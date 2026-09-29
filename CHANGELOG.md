@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-09-29
+
+Fixes two retrieval defects found in agent evals on a German-language archive: non-ASCII search terms never matched, and `ta show` could not resolve filenames containing a non-breaking space. Splits the pipeline into a `TACore` library and rewrites the agent skills' tag guidance.
+
 ### Changed
 
 - **`--depth` outside 0–10 is rejected** with a validation error instead of silently clamping to 10.
